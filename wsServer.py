@@ -75,7 +75,6 @@ def runServer(frameCallback):
         clients[clientID] = client(websocket, path)
 
         logPrint("Client (clientID: " + str(clientID) + ", type: " + clients[clientID].type + ") connected at " + path)
-        sendAll("Welcome #" + str(clientID))
 
         # Start the sendTask for this socket
         asyncio.get_event_loop().create_task(sendTask(clientID))
@@ -90,7 +89,6 @@ def runServer(frameCallback):
         except websockets.exceptions.ConnectionClosed:
             # The socket closed so remove the client
             clients.pop(clientID)
-            sendAll("Bye #" + str(clientID))
 
         logPrint("Handler/receiveTask for " + str(clientID) + " exited")
 

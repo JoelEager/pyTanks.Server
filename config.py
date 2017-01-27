@@ -2,7 +2,6 @@
 
 class mapSize:
     # (0, 0) is the upper left corner with +x going to the right and +y going down
-
     x = 500                         # In pixels
     y = 500                         # In pixels
 

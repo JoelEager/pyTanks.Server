@@ -1,4 +1,5 @@
 import math
+import json
 import wsServer
 import config
 
@@ -10,7 +11,7 @@ class tankState:
         self.y = y              # Current y position
         self.heading = heading  # Current heading in radians from the +x axis
 
-timeSinceLastUpdate = 0
+timeSinceLastUpdate = 1 / config.serverSettings.updatesPerSecond
 aTank = tankState(config.mapSize.x / 2, config.mapSize.y / 2, math.pi / 4)
 
 # Called once every frame by the server
@@ -23,10 +24,13 @@ def gameLoop(elapsedTime):
         while len(wsServer.clients[clientID].incoming) != 0:
             print(str(clientID) + ": " + wsServer.clients[clientID].incoming.pop())
 
-    # Send an update to the clients every 5 seconds
-    timeDelta = datetime.datetime.now() - lastLogTime
-    timeDelta = timeDelta.seconds + (timeDelta.microseconds / 1000000)
-    if timeDelta >= 5:
-        message = "Number of clients: " + str(len(wsServer.clients))
-        lastLogTime = datetime.datetime.now()
-        wsServer.sendAll(message)
+    # Move the tank the correct distance
+    totalDistance = config.tankProps.speed * elapsedTime
+    aTank.x += math.cos(aTank.heading) * totalDistance
+    aTank.y += math.sin(aTank.heading) * totalDistance
+
+    # Send game state updates to clients
+    timeSinceLastUpdate += elapsedTime
+    if timeSinceLastUpdate >= 1 / config.serverSettings.updatesPerSecond:
+        timeSinceLastUpdate = 0
+        wsServer.sendAll(json.dumps(aTank.__dict__, separators=(',', ':')))

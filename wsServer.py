@@ -3,16 +3,21 @@ import websockets
 import datetime
 import random
 
-# Level of debugging logging
-logLevel = 0   # 0 for none, 1 for server messages, 2 for all
+# Level of debugging logging for the server
+logLevel = 1   # 0 for none, 1 for server messages, 2 for all
 
 # Used to store the info for one active client
 class client:
     def __init__(self, clientSocket, path):
         self.socket = clientSocket  # The client's websocket
-        self.type = "viewer"        # The client type
         self.outgoing = list()      # The outgoing message queue for this client
         self.incoming = list()      # The incoming message queue for this client
+
+        # Set the client's type
+        if path == "/viewerAPI":
+            self.type = "viewer"
+        else:
+            self.type = "invalid_API_path"
 
 # Each entry is one active client
 clients = dict()
@@ -63,7 +68,7 @@ def runServer(frameCallback, framesPerSecond):
         # Add the client to the dictionary of active clients
         clients[clientID] = client(websocket, path)
 
-        logPrint("Client with clientID " + str(clientID) + " connected at " + path)
+        logPrint("Client (clientID: " + str(clientID) + ", type: " + clients[clientID].type + ") connected at " + path)
         sendAll("Welcome #" + str(clientID))
 
         # Start the sendTask for this socket

@@ -2,6 +2,10 @@ import asyncio
 import websockets
 import datetime
 import random
+import config
+
+# This script is the websocket server and asyncio loop
+#   It takes care of managing the io for the clients and calling the frameCallback function once every frame
 
 # Level of debugging logging for the server
 logLevel = 1   # 0 for none, 1 for server messages, 2 for all
@@ -14,10 +18,12 @@ class client:
         self.incoming = list()      # The incoming message queue for this client
 
         # Set the client's type
-        if path == "/viewerAPI":
-            self.type = "viewer"
+        if path == config.serverSettings.viewerAPIPath:
+            self.type = config.clientTypes.viewer
+        elif path == config.serverSettings.playerAPIPath:
+            self.type = config.clientTypes.player
         else:
-            self.type = "invalid_API_path"
+            self.type = config.clientTypes.invalid
 
 # Each entry is one active client
 clients = dict()
@@ -33,7 +39,7 @@ def sendAll(message):
 # Starts the sever and asyncio loop
 #    frameCallback:    The function to call every frame
 #    framesPerSecond:  The number of frames per second to target
-def runServer(frameCallback, framesPerSecond):
+def runServer(frameCallback):
     # --- Internal server functions: ---
 
     # Handles printing of debug info
@@ -94,7 +100,7 @@ def runServer(frameCallback, framesPerSecond):
     async def frameLoop():
         # For frame rate targeting
         lastFrameTime = datetime.datetime.now()
-        baseDelay = 1 / framesPerSecond
+        baseDelay = 1 / config.serverSettings.framesPerSecond
         delay = baseDelay
         deltas = list()
 
@@ -112,9 +118,9 @@ def runServer(frameCallback, framesPerSecond):
 
             # Adjust delay to try to keep the actual frame rate within 5% of the target
             avgDelta = sum(deltas) / float(len(deltas))
-            if avgDelta * framesPerSecond < 0.95:      # Too fast
+            if avgDelta * config.serverSettings.framesPerSecond < 0.95:      # Too fast
                 delay += baseDelay * 0.01
-            elif avgDelta * framesPerSecond > 1.05:    # Too slow
+            elif avgDelta * config.serverSettings.framesPerSecond > 1.05:    # Too slow
                 delay -= baseDelay * 0.01
 
             if delay < 1 / 250:
@@ -130,7 +136,7 @@ def runServer(frameCallback, framesPerSecond):
                     lastFSPLog = datetime.datetime.now()
 
             # Run the callback
-            frameCallback()
+            frameCallback(frameDelta)
 
             # Sleep until the next frame
             await asyncio.sleep(delay)      # (If this doesn't sleep then the other tasks can never be completed.)
@@ -146,6 +152,6 @@ def runServer(frameCallback, framesPerSecond):
         asyncio.get_event_loop().set_debug(True)
 
     # Start the sever and asyncio loop
-    start_server = websockets.serve(clientHandler, "127.0.0.1", 5678)
+    start_server = websockets.serve(clientHandler, config.serverSettings.ip, config.serverSettings.port)
     asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_until_complete(frameLoop())

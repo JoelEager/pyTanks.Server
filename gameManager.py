@@ -1,10 +1,22 @@
+import math
 import wsServer
-import datetime
+import config
 
-lastLogTime = datetime.datetime.now()
+# This script takes care of the actual game state management
 
-def gameLoop():
-    global lastLogTime
+class tankState:
+    def __init__(self, x, y, heading):
+        self.x = x              # Current x position
+        self.y = y              # Current y position
+        self.heading = heading  # Current heading in radians from the +x axis
+
+timeSinceLastUpdate = 0
+aTank = tankState(config.mapSize.x / 2, config.mapSize.y / 2, math.pi / 4)
+
+# Called once every frame by the server
+#   elapsedTime:    The time elapsed in seconds since the last frame
+def gameLoop(elapsedTime):
+    global timeSinceLastUpdate
 
     # Print the messages received from the clients
     for clientID in wsServer.clients:

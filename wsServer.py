@@ -7,9 +7,6 @@ import config
 # This script is the websocket server and asyncio loop
 #   It takes care of managing the io for the clients and calling the frameCallback function once every frame
 
-# Level of debugging logging for the server
-logLevel = 1   # 0 for none, 1 for server messages, 2 for all
-
 # Used to store the info for one active client
 class client:
     def __init__(self, clientSocket, path):
@@ -33,7 +30,7 @@ def sendAll(message):
     for clientID in clients:
         clients[clientID].outgoing.append(message)
 
-    if logLevel >= 1:
+    if config.serverSettings.logLevel >= 2:
         print("Message added to send queue: " + message)
 
 # Starts the sever and asyncio loop
@@ -43,8 +40,8 @@ def runServer(frameCallback):
     # --- Internal server functions: ---
 
     # Handles printing of debug info
-    def logPrint(message):
-        if logLevel >= 1:
+    def logPrint(message, minLevel):
+        if config.serverSettings.logLevel >= minLevel:
             print(message)
 
     # Gets the delta between now and a given datetime in seconds
@@ -60,7 +57,7 @@ def runServer(frameCallback):
             else:
                 await asyncio.sleep(0.05)
 
-        logPrint("sendTask for " + str(clientID) + " exited")
+        logPrint("sendTask for " + str(clientID) + " exited", 1)
 
     # Registers a client, starts sendTask for it, and watches for incoming messages
     async def clientHandler(websocket, path):
@@ -74,7 +71,7 @@ def runServer(frameCallback):
         # Add the client to the dictionary of active clients
         clients[clientID] = client(websocket, path)
 
-        logPrint("Client (clientID: " + str(clientID) + ", type: " + clients[clientID].type + ") connected at " + path)
+        logPrint("Client (clientID: " + str(clientID) + ", type: " + clients[clientID].type + ") connected at " + path, 1)
 
         # Start the sendTask for this socket
         asyncio.get_event_loop().create_task(sendTask(clientID))
@@ -85,12 +82,12 @@ def runServer(frameCallback):
                 message = await websocket.recv()
                 clients[clientID].incoming.append(message)
 
-                logPrint("Got message from " + str(clientID) + ": " + message)
+                logPrint("Got message from " + str(clientID) + ": " + message, 2)
         except websockets.exceptions.ConnectionClosed:
             # The socket closed so remove the client
             clients.pop(clientID)
 
-        logPrint("Handler/receiveTask for " + str(clientID) + " exited")
+        logPrint("Handler/receiveTask for " + str(clientID) + " exited", 1)
 
         # (When this function returns the socket dies)
 
@@ -125,7 +122,7 @@ def runServer(frameCallback):
                 delay = 1 / 250
 
             # Log FPS if server logging is enabled
-            if logLevel >= 1:
+            if config.serverSettings.logLevel >= 1:
                 frameCount += 1
 
                 if timeDelta(lastFSPLog) >= 5:
@@ -142,7 +139,7 @@ def runServer(frameCallback):
     # --- Server startup code: ---
 
     # Configure websocket server logging
-    if logLevel >= 2:
+    if config.serverSettings.logLevel >= 3:
         import logging
         logger = logging.getLogger("websockets")
         logger.setLevel(logging.DEBUG)

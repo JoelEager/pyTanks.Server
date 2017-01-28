@@ -2,6 +2,7 @@ import math
 import json
 import wsServer
 import config
+import random
 
 # This script takes care of the actual game state management
 
@@ -12,17 +13,18 @@ class tankState:
         self.heading = heading  # Current heading in radians from the +x axis
 
 timeSinceLastUpdate = 1 / config.serverSettings.updatesPerSecond
-aTank = tankState(config.mapSize.x / 2, config.mapSize.y / 2, math.pi / 4)
+aTank = tankState(25, 25, math.pi / 4)
 
 # Called once every frame by the server
 #   elapsedTime:    The time elapsed in seconds since the last frame
 def gameLoop(elapsedTime):
     global timeSinceLastUpdate
 
-    # Print the messages received from the clients
+    # Randomize heading if command received from client
     for clientID in wsServer.clients:
         while len(wsServer.clients[clientID].incoming) != 0:
-            print(str(clientID) + ": " + wsServer.clients[clientID].incoming.pop())
+            if wsServer.clients[clientID].incoming.pop() == "change_heading":
+                aTank.heading += random.uniform(math.pi / 4, math.pi)
 
     # Move the tank the correct distance
     totalDistance = config.tankProps.speed * elapsedTime

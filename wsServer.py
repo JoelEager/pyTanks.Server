@@ -149,4 +149,5 @@ def runServer(frameCallback):
     # Start the sever and asyncio loop
     start_server = websockets.serve(clientHandler, config.serverSettings.ip, config.serverSettings.port)
     asyncio.get_event_loop().run_until_complete(start_server)
+    print("Server started")
     asyncio.get_event_loop().run_until_complete(frameLoop())

@@ -27,7 +27,6 @@ def gameLoop(elapsedTime):
             if message == "change_heading":
                 aTank.heading += random.uniform(math.pi / 4, math.pi)
             else:
-                print(message)
                 aTank.heading += float(message)
 
     # Move the tank the correct distance

@@ -23,8 +23,12 @@ def gameLoop(elapsedTime):
     # Randomize heading if command received from client
     for clientID in wsServer.clients:
         while len(wsServer.clients[clientID].incoming) != 0:
-            if wsServer.clients[clientID].incoming.pop() == "change_heading":
+            message = wsServer.clients[clientID].incoming.pop()
+            if message == "change_heading":
                 aTank.heading += random.uniform(math.pi / 4, math.pi)
+            else:
+                print(message)
+                aTank.heading += float(message)
 
     # Move the tank the correct distance
     totalDistance = config.tankProps.speed * elapsedTime

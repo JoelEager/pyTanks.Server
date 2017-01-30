@@ -4,10 +4,10 @@ import datetime
 import random
 import config
 
-# This script is the websocket server and asyncio loop
-#   It takes care of managing the io for the clients and calling the frameCallback function once every frame
+# The websocket server and asyncio functions
+#   This takes care of managing the io for the clients and calling the given functions in gameMaster.py at the set rate
 
-# Used to store the info for one active client
+# Used to store the info for active clients
 class client:
     def __init__(self, clientSocket, path):
         self.socket = clientSocket  # The client's websocket
@@ -16,11 +16,11 @@ class client:
 
         # Set the client's type
         if path == config.serverSettings.viewerAPIPath:
-            self.type = config.clientTypes.viewer
+            self.type = config.serverSettings.clientTypes.viewer
         elif path == config.serverSettings.playerAPIPath:
-            self.type = config.clientTypes.player
+            self.type = config.serverSettings.clientTypes.player
         else:
-            self.type = config.clientTypes.invalid
+            self.type = config.serverSettings.clientTypes.invalid
 
 # Each entry is one active client
 clients = dict()
@@ -35,8 +35,8 @@ def sendAll(message):
 
 # Starts the sever and asyncio loop
 #    frameCallback:    The function to call every frame
-#    framesPerSecond:  The number of frames per second to target
-def runServer(frameCallback):
+#    updateCallback:    The function to call every client game state update
+def runServer(frameCallback, updateCallback):
     # --- Internal server functions: ---
 
     # Handles printing of debug info
@@ -91,13 +91,17 @@ def runServer(frameCallback):
 
         # (When this function returns the socket dies)
 
-    # Runs the frameCallback every frame and aims to hold the given frame rate
+    # Runs frameCallback every frame and aims to hold the given frame rate
+    #   Also runs updateCallback at the set rate
     async def frameLoop():
         # For frame rate targeting
         lastFrameTime = datetime.datetime.now()
         baseDelay = 1 / config.serverSettings.framesPerSecond
         delay = baseDelay
         deltas = list()
+
+        # For timing game state updates
+        timeSinceLastUpdate = 1 / config.serverSettings.updatesPerSecond
 
         # For calculating the FPS for logging
         lastFSPLog = datetime.datetime.now()
@@ -130,8 +134,14 @@ def runServer(frameCallback):
                     frameCount = 0
                     lastFSPLog = datetime.datetime.now()
 
-            # Run the callback
+            # Run frameCallback each frame
             frameCallback(frameDelta)
+
+            # Run updateCallback at the rate set in config.py
+            timeSinceLastUpdate += frameDelta
+            if timeSinceLastUpdate >= 1 / config.serverSettings.updatesPerSecond:
+                timeSinceLastUpdate = 0
+                updateCallback()
 
             # Sleep until the next frame
             await asyncio.sleep(delay)      # (If this doesn't sleep then the other tasks can never be completed.)

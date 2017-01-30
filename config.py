@@ -15,7 +15,7 @@ class serverSettings:
     framesPerSecond = 60            # The target frame rate for the frameCallback function
     updatesPerSecond = 15           # How many game state updates should be sent to clients each second
 
-    # Level of debugging logging for the server
+    # Level of debugging logging for the websocket server
     logLevel = 1  # 0 for none, 1 for FPS and connect/disconnect, 2 for all server status logs, 3 for all websocket logs
 
     viewerAPIPath = "/viewerAPI"    # Address that viewer clients connect on

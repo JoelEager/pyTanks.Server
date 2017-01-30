@@ -37,7 +37,7 @@ def sendAll(message):
 #    frameCallback:    The function to call every frame
 #    updateCallback:    The function to call every client game state update
 def runServer(frameCallback, updateCallback):
-    # --- Internal server functions: ---
+    # --- Internal websocket server functions: ---
 
     # Handles printing of debug info
     def logPrint(message, minLevel):
@@ -146,7 +146,7 @@ def runServer(frameCallback, updateCallback):
             # Sleep until the next frame
             await asyncio.sleep(delay)      # (If this doesn't sleep then the other tasks can never be completed.)
 
-    # --- Server startup code: ---
+    # --- Websocket server startup code: ---
 
     # Configure websocket server logging
     if config.serverSettings.logLevel >= 3:

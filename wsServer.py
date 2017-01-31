@@ -9,18 +9,11 @@ import config
 
 # Used to store the info for active clients
 class client:
-    def __init__(self, clientSocket, path):
+    def __init__(self, clientSocket, type):
         self.socket = clientSocket  # The client's websocket
+        self.type = type            # The type of client (valid types defined in config.serverSettings.clientTypes)
         self.outgoing = list()      # The outgoing message queue for this client
         self.incoming = list()      # The incoming message queue for this client
-
-        # Set the client's type
-        if path == config.serverSettings.viewerAPIPath:
-            self.type = config.serverSettings.clientTypes.viewer
-        elif path == config.serverSettings.playerAPIPath:
-            self.type = config.serverSettings.clientTypes.player
-        else:
-            self.type = config.serverSettings.clientTypes.invalid
 
 # Each entry is one active client
 clients = dict()
@@ -61,6 +54,17 @@ def runServer(frameCallback, updateCallback):
 
     # Registers a client, starts sendTask for it, and watches for incoming messages
     async def clientHandler(websocket, path):
+        # Check the client's connection path and set API type
+        if path == config.serverSettings.apiPaths.viewer:
+            clientType = config.serverSettings.clientTypes.viewer
+        elif path == config.serverSettings.apiPaths.player:
+            clientType = config.serverSettings.clientTypes.player
+        else:
+            # Invalid client
+            logPrint("A client tried to connect using an invalid API path - connection refused", 1)
+            await websocket.send("Invalid API path - Check that your client config is up to date")
+            return  # Returning from this function disconnects the client
+
         # Generate a clientID
         while True:
             clientID = random.randint(1000, 9999)
@@ -69,7 +73,7 @@ def runServer(frameCallback, updateCallback):
                 break
 
         # Add the client to the dictionary of active clients
-        clients[clientID] = client(websocket, path)
+        clients[clientID] = client(websocket, clientType)
 
         logPrint("Client (clientID: " + str(clientID) + ", type: " + clients[clientID].type + ") connected at " + path, 1)
 

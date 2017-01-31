@@ -18,10 +18,10 @@ class serverSettings:
     # Level of debugging logging for the websocket server
     logLevel = 1  # 0 for none, 1 for FPS and connect/disconnect, 2 for all server status logs, 3 for all websocket logs
 
-    viewerAPIPath = "/viewerAPI"    # Address that viewer clients connect on
-    playerAPIPath = "/playerAPI"    # Address that player clients connect on
+    class apiPaths:
+        viewer = "/pyTanksAPI/viewer"    # Path that viewer clients connect on
+        player = "/pyTanksAPI/player"    # Path that player clients connect on
 
     class clientTypes:
         viewer = "viewer"               # A javascript game viewing client
         player = "player"               # A python AI player client
-        invalid = "invalid_API_path"    # An invalid client

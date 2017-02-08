@@ -1,4 +1,3 @@
-import json
 import math
 import copy
 import wsServer
@@ -72,27 +71,47 @@ def gameLoop(elapsedTime):
 # Send game state updates to clients
 #   (Called every time an update is due to be sent by wsServer.py)
 def updateClients():
-    # Function for helping the json encoder in parsing objects
-    def objHandler(Obj):
-        return Obj.__dict__
-
     # Build a gameState object to send out
     class gameState:
         def __init__(self):
-            self.tanks = list()
+            self.tanks = None
             self.shells = shells
             self.coverBlocks = coverBlocks
+
     currentGameState = gameState()
 
-    # Append the tanks
+    # Build the tanks dict
+    tanks = dict()
     for clientID in wsServer.clients:
         if wsServer.clients[clientID].type == config.serverSettings.clientTypes.player:
             aTank = copy.copy(wsServer.clients[clientID].tank)
-            aTank.id = clientID     # TODO: Change to user-facing name
-            currentGameState.tanks.append(aTank)
+            tanks[clientID] = aTank
 
-    # TODO: Send out cleaned data to players
-    wsServer.sendAll(json.dumps(objHandler(currentGameState), default=objHandler, separators=(',', ':')))
+    # Send out clean data to players
+    tankIDs = list(tanks.keys())
+    for playerID in tankIDs:
+        # Append the current tank's data and name to currentGameState
+        myTank = tanks[playerID]
+        myTank.name = "your tank"   # TODO: Change to user-facing name
+        currentGameState.myTank = myTank
+        
+        # Generate a list of tanks containing all but the current tank and add it to currentGameState
+        del tanks[playerID]
+        currentGameState.tanks = list(tanks.values())
+        
+        # Send currentGameState to the current player
+        wsServer.send(playerID, utils.generateJSON(currentGameState))
+
+        # Clean up currentGameState and the tanks dict
+        del currentGameState.myTank
+        del myTank.name
+        tanks[playerID] = myTank
+
+    # Send complete data to the viewers
+    for playerID in tanks:
+        tanks[playerID].name = "a tank"     # TODO: Change to user-facing name
+    currentGameState.tanks = list(tanks.values())
+    wsServer.send(config.serverSettings.clientTypes.viewer, utils.generateJSON(currentGameState))
 
 # Start the server with references to the callback functions
 wsServer.runServer(gameLoop, updateClients)

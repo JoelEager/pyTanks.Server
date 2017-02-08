@@ -18,17 +18,22 @@ class client:
 # Each entry is one active client
 clients = dict()
 
-# Appends a message to the outgoing queues for all clients
-def sendAll(message):
-    for clientID in clients:
-        clients[clientID].outgoing.append(message)
+# Appends a message to the outgoing queues for the indicated client(s)
+#   recipient must be a valid int clientID or a type in config.serverSettings.clientTypes
+def send(recipient, message):
+    if isinstance(recipient, int):
+        clients[recipient].outgoing.append(message)
+    else:
+        for clientID in clients:
+            if clients[clientID].type == recipient:
+                clients[clientID].outgoing.append(message)
 
     if config.serverSettings.logLevel >= 2:
-        print("Message added to send queue: " + message)
+        print("Message added to send queue for " + str(recipient) + ": " + message)
 
 # Starts the sever and asyncio loop
 #    frameCallback:    The function to call every frame
-#    updateCallback:    The function to call every client game state update
+#    updateCallback:   The function to call every client game state update
 def runServer(frameCallback, updateCallback):
     # --- Internal websocket server functions: ---
 

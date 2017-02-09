@@ -94,7 +94,7 @@ def updateClients():
     for playerID in tankIDs:
         # Append the current tank's complete data and name to currentGameState
         myTank = wsServer.clients[playerID].tank
-        myTank.name = "your tank"   # TODO: Change to user-facing name
+        myTank.name = config.serverSettings.tankNames[playerID]
         currentGameState.myTank = myTank
         
         # Generate a list of tanks containing all but the current tank and add it to currentGameState
@@ -114,7 +114,7 @@ def updateClients():
     completeTanks = list()
     for playerID in tankIDs:
         aTank = copy.copy(wsServer.clients[playerID].tank)
-        aTank.name = "a tank"     # TODO: Change to user-facing name
+        aTank.name = config.serverSettings.tankNames[playerID]
         completeTanks.append(aTank)
     currentGameState.tanks = completeTanks
     wsServer.send(config.serverSettings.clientTypes.viewer, utils.generateJSON(currentGameState))

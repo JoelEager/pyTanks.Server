@@ -72,7 +72,11 @@ def runServer(frameCallback, updateCallback):
 
         # Generate a clientID
         while True:
-            clientID = random.randint(1000, 9999)
+            if clientType == config.serverSettings.clientTypes.player:
+                # If it's a player the id needs to map to a name in the list
+                clientID = random.randint(0, len(config.serverSettings.tankNames) - 1)
+            else:
+                clientID = random.randint(1000, 9999)
 
             if clientID not in clients:
                 break

@@ -81,36 +81,42 @@ def updateClients():
     currentGameState = gameState()
 
     # Build the tanks dict
-    tanks = dict()
+    cleanedTanks = dict()
     for clientID in wsServer.clients:
         if wsServer.clients[clientID].type == config.serverSettings.clientTypes.player:
             aTank = copy.copy(wsServer.clients[clientID].tank)
-            tanks[clientID] = aTank
+            del aTank.wins
+            del aTank.kills
+            cleanedTanks[clientID] = aTank
 
     # Send out clean data to players
-    tankIDs = list(tanks.keys())
+    tankIDs = list(cleanedTanks.keys())
     for playerID in tankIDs:
-        # Append the current tank's data and name to currentGameState
-        myTank = tanks[playerID]
+        # Append the current tank's complete data and name to currentGameState
+        myTank = wsServer.clients[playerID].tank
         myTank.name = "your tank"   # TODO: Change to user-facing name
         currentGameState.myTank = myTank
         
         # Generate a list of tanks containing all but the current tank and add it to currentGameState
-        del tanks[playerID]
-        currentGameState.tanks = list(tanks.values())
+        myCleanedTank = cleanedTanks[playerID]
+        del cleanedTanks[playerID]
+        currentGameState.tanks = list(cleanedTanks.values())
         
         # Send currentGameState to the current player
         wsServer.send(playerID, utils.generateJSON(currentGameState))
 
-        # Clean up currentGameState and the tanks dict
+        # Clean up currentGameState, myTank, and the cleanedTanks dict
         del currentGameState.myTank
         del myTank.name
-        tanks[playerID] = myTank
+        cleanedTanks[playerID] = myCleanedTank
 
     # Send complete data to the viewers
-    for playerID in tanks:
-        tanks[playerID].name = "a tank"     # TODO: Change to user-facing name
-    currentGameState.tanks = list(tanks.values())
+    completeTanks = list()
+    for playerID in tankIDs:
+        aTank = copy.copy(wsServer.clients[playerID].tank)
+        aTank.name = "a tank"     # TODO: Change to user-facing name
+        completeTanks.append(aTank)
+    currentGameState.tanks = completeTanks
     wsServer.send(config.serverSettings.clientTypes.viewer, utils.generateJSON(currentGameState))
 
 # Start the server with references to the callback functions

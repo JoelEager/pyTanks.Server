@@ -19,6 +19,7 @@ class serverSettings:
     framesPerSecond = 60                # The target frame rate for the frameCallback function
     updatesPerSecond = 10               # How many game state updates should be sent to clients each second
     minPlayers = 4                      # Doesn't start a new game if there's less than this many player clients
+    maxPlayers = 20                     # Won't let additional players connect once this number has been reached
 
     # Level of debugging logging for the websocket server
     logLevel = 1  # 0 for none, 1 for FPS and connect/disconnect, 2 for all server status logs, 3 for all websocket logs
@@ -35,7 +36,7 @@ class serverSettings:
         alive = "alive"                 # The tank is alive and in play
         dead = "dead"                   # The tank is dead (This is also the default state when a new player connects to an in-progress game.)
 
-    tankNames = [                       # A list of viewer-facing tank names
+    tankNames = [                       # User-facing tank names
         "M10 tank destroyer",
         "Cruiser Mk I",
         "Crusader Mk III",
@@ -85,5 +86,5 @@ class serverSettings:
         "Schneider CA1",
         "Renault FT",
         "Char 2C",
-        "Vickers Medium Mark I"
+        "Vickers Mk I"
     ]

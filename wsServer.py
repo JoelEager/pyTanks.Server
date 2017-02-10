@@ -18,6 +18,9 @@ class client:
 # Each entry is one active client
 clients = dict()
 
+# Current number of connected players
+playerCount = 0
+
 # Appends a message to the outgoing queues for the indicated client(s)
 #   recipient must be a valid int clientID or a type in config.serverSettings.clientTypes
 def send(recipient, message):
@@ -59,11 +62,20 @@ def runServer(frameCallback, updateCallback):
 
     # Registers a client, starts sendTask for it, and watches for incoming messages
     async def clientHandler(websocket, path):
+        global playerCount
+
         # Check the client's connection path and set API type
         if path == config.serverSettings.apiPaths.viewer:
             clientType = config.serverSettings.clientTypes.viewer
         elif path == config.serverSettings.apiPaths.player:
-            clientType = config.serverSettings.clientTypes.player
+            if playerCount < config.serverSettings.maxPlayers:
+                playerCount += 1
+                clientType = config.serverSettings.clientTypes.player
+            else:
+                # Too many players
+                logPrint("A player tried to connect but the game is full - connection refused", 1)
+                await websocket.send("Server full; please try again later.")
+                return  # Returning from this function disconnects the client
         else:
             # Invalid client
             logPrint("A client tried to connect using an invalid API path - connection refused", 1)
@@ -73,7 +85,7 @@ def runServer(frameCallback, updateCallback):
         # Generate a clientID
         while True:
             if clientType == config.serverSettings.clientTypes.player:
-                # If it's a player the id needs to map to a name in the list
+                # If it's a player the id needs to map to a name in the list of tank names
                 clientID = random.randint(0, len(config.serverSettings.tankNames) - 1)
             else:
                 clientID = random.randint(1000, 9999)
@@ -99,6 +111,9 @@ def runServer(frameCallback, updateCallback):
         except websockets.exceptions.ConnectionClosed:
             # The socket closed so remove the client
             clients.pop(clientID)
+
+            if clientType == config.serverSettings.clientTypes.player:
+                playerCount -= 1
 
         logPrint("Handler/receiveTask for " + str(clientID) + " exited", 1)
 

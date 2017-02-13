@@ -31,7 +31,7 @@ class shell:
         self.heading = heading  # Heading in radians from the +x axis
 
 # Stores the state data for a block of cover on the map
-class cover:
+class wall:
     def __init__(self, x, y, width, height):
         self.x = x              # X position
         self.y = y              # Y position
@@ -40,7 +40,7 @@ class cover:
 
 # Lists for the currently active shells and cover blocks
 shells = list()
-coverBlocks = list()
+walls = list()
 
 # Run the logic to maintain the game state and apply commands from player clients
 #   (Called once every frame by wsServer.py)
@@ -52,7 +52,7 @@ def gameLoop(elapsedTime):
         if aClient.type == config.serverSettings.clientTypes.player:
             if hasattr(aClient, 'tank'):
                 # Update tank positions
-                if aClient.tank.status == config.serverSettings.tankStatus.alive and aClient.tank.moving:
+                if aClient.tank.moving:
                     utils.moveObj(aClient.tank, config.gameSettings.tankProps.speed * elapsedTime)
             else:
                 # Initialize a tank for any new players
@@ -76,7 +76,7 @@ def updateClients():
         def __init__(self):
             self.tanks = None
             self.shells = shells
-            self.coverBlocks = coverBlocks
+            self.walls = walls
 
     currentGameState = gameState()
 

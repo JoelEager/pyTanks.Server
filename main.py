@@ -64,9 +64,9 @@ def gameLoop(elapsedTime):
 
             # Check for commands
             if len(aClient.incoming) != 0:
-                message = aClient.incoming.pop()
-                if message == "change_heading":
-                    aClient.tank.heading += math.pi / 2
+                command = aClient.incoming.pop()
+                if command.action == config.serverSettings.commands.turn:
+                    aClient.tank.heading = command.arg
 
 # Send game state updates to clients
 #   (Called every time an update is due to be sent by wsServer.py)

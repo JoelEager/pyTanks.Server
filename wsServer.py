@@ -2,6 +2,8 @@ import asyncio
 import websockets
 import datetime
 import random
+import json
+import numbers
 import config
 
 # The websocket server and asyncio functions
@@ -50,15 +52,55 @@ def runServer(frameCallback, updateCallback):
         diff = datetime.datetime.now() - aTime
         return diff.seconds + (diff.microseconds / 1000000)
 
-    # Sends queued messages to a client
-    async def sendTask(clientID):
-        while clientID in clients:
-            if len(clients[clientID].outgoing) != 0:
-                await clients[clientID].socket.send(clients[clientID].outgoing.pop(0))
-            else:
-                await asyncio.sleep(0.05)
+    # Handles incoming messages from a player
+    async def playerReceiveTask(clientID):
+        global playerCount
 
-        logPrint("sendTask for " + str(clientID) + " exited", 1)
+        # Used to store a valid command
+        class command:
+            def __init__(self):
+                self.action = message["action"]
+                if "arg" in message:
+                    self.arg = message["arg"]
+
+        try:
+            while clientID in clients:
+                message = await clients[clientID].socket.recv()
+                logPrint("Got message from " + str(clientID) + ": " + message, 2)
+
+                # Try to parse it as a JSON command
+                try:
+                    message = json.loads(message)
+                except json.decoder.JSONDecodeError:
+                    # Message isn't valid JSON
+                    raise ValueError("Invalid JSON")
+
+                # All commands must have a valid action
+                if message.get("action") not in config.serverSettings.commands.validCommands:
+                    raise ValueError("Missing or invalid action")
+
+                # Check for a valid arg if it's required
+                if message["action"] == config.serverSettings.commands.turn or \
+                        message["action"] == config.serverSettings.commands.fire:
+                    if not isinstance(message.get("arg"), numbers.Number):
+                        raise ValueError("Missing or invalid arg")
+
+                # Build and append the command obj
+                clients[clientID].incoming.append(command())
+        except websockets.exceptions.ConnectionClosed:
+            # The socket closed so remove the client
+            clients.pop(clientID)
+            playerCount -= 1
+        except ValueError as e:
+            # Bad command
+            logPrint("Received invalid command from player: " + e.args[0], 1)
+
+            # Send error to client and disconnect
+            await clients[clientID].socket.send(e.args[0])
+            clients.pop(clientID)
+            playerCount -= 1
+
+        logPrint("playerReceiveTask for " + str(clientID) + " exited", 1)
 
     # Registers a client, starts sendTask for it, and watches for incoming messages
     async def clientHandler(websocket, path):
@@ -98,25 +140,21 @@ def runServer(frameCallback, updateCallback):
 
         logPrint("Client (clientID: " + str(clientID) + ", type: " + clients[clientID].type + ") connected at " + path, 1)
 
-        # Start the sendTask for this socket
-        asyncio.get_event_loop().create_task(sendTask(clientID))
+        # Start a playerReceiveTask if this is a player
+        if clientType == config.serverSettings.clientTypes.player:
+            asyncio.get_event_loop().create_task(playerReceiveTask(clientID))
 
-        # Handles incoming messages from a client
+        # Send queued messages to the client
         try:
             while clientID in clients:
-                message = await websocket.recv()
-                clients[clientID].incoming.append(message)
-
-                logPrint("Got message from " + str(clientID) + ": " + message, 2)
+                if len(clients[clientID].outgoing) != 0:
+                    await clients[clientID].socket.send(clients[clientID].outgoing.pop(0))
+                else:
+                    await asyncio.sleep(0.05)
         except websockets.exceptions.ConnectionClosed:
-            # The socket closed so remove the client
-            clients.pop(clientID)
+            pass
 
-            if clientType == config.serverSettings.clientTypes.player:
-                playerCount -= 1
-
-        logPrint("Handler/receiveTask for " + str(clientID) + " exited", 1)
-
+        logPrint("handler for " + str(clientID) + " exited", 1)
         # (When this function returns the socket dies)
 
     # Runs frameCallback every frame and aims to hold the given frame rate

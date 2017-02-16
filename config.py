@@ -36,7 +36,17 @@ class serverSettings:
         alive = "alive"                 # The tank is alive and in play
         dead = "dead"                   # The tank is dead (This is also the default state when a new player connects to an in-progress game.)
 
-    tankNames = [                       # User-facing tank names
+    # String names for the commands the player can send
+    class commands:
+        fire = "Command_Fire"
+        turn = "Command_Turn"
+        stop = "Command_Stop"
+        go = "Command_Go"
+
+        validCommands = [fire, turn, stop, go]
+
+    # User-facing tank names
+    tankNames = [
         "M10 tank destroyer",
         "Cruiser Mk I",
         "Crusader Mk III",

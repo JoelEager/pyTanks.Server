@@ -196,7 +196,7 @@ def runServer(frameCallback, updateCallback):
                 frameCount += 1
 
                 if timeDelta(lastFSPLog) >= 5:
-                    print("FPS: " + str(frameCount / 5))
+                    logPrint("FPS: " + str(frameCount / 5), 1)
                     frameCount = 0
                     lastFSPLog = datetime.datetime.now()
 
@@ -225,5 +225,5 @@ def runServer(frameCallback, updateCallback):
     # Start the sever and asyncio loop
     start_server = websockets.serve(clientHandler, config.serverSettings.ip, config.serverSettings.port)
     asyncio.get_event_loop().run_until_complete(start_server)
-    print("Server started")
+    logPrint("Server started", 1)
     asyncio.get_event_loop().run_until_complete(frameLoop())

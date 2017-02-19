@@ -89,7 +89,7 @@ def runServer(frameCallback, updateCallback):
                 clients[clientID].incoming.append(command())
         except websockets.exceptions.ConnectionClosed:
             # The socket closed so remove the client
-            clients.pop(clientID)
+            if clientID in clients: del clients[clientID]
             playerCount -= 1
         except ValueError as e:
             # Bad command
@@ -97,7 +97,7 @@ def runServer(frameCallback, updateCallback):
 
             # Send error to client and disconnect
             await clients[clientID].socket.send(e.args[0])
-            clients.pop(clientID)
+            del clients[clientID]
             playerCount -= 1
 
         logPrint("playerReceiveTask for " + str(clientID) + " exited", 1)
@@ -179,7 +179,7 @@ def runServer(frameCallback, updateCallback):
             lastFrameTime = datetime.datetime.now()
             deltas.append(frameDelta)
             if len(deltas) > 15:
-                deltas.pop(0)
+                del deltas[0]
 
             # Adjust delay to try to keep the actual frame rate within 5% of the target
             avgDelta = sum(deltas) / float(len(deltas))

@@ -17,27 +17,52 @@ walls = list()
 #   (Called once every frame by wsServer.py)
 #   elapsedTime:    The time elapsed in seconds since the last frame
 def gameLoop(elapsedTime):
-    for clientID in wsServer.clients:
-        aClient = wsServer.clients[clientID]
+    # Move the shells
+    for index in range(0, len(shells)):
+        shells[index].move(config.gameSettings.shellSpeed * elapsedTime)
 
-        if aClient.type == config.serverSettings.clientTypes.player:
-            if hasattr(aClient, 'tank'):
-                # Update tank positions
-                if aClient.tank.moving:
-                    aClient.tank.move(config.gameSettings.tankProps.speed * elapsedTime)
+        # Discard any shells that fly off the map
+        if (shells[index].x > config.gameSettings.mapSize.x + 25 or shells[index].x < -25 or
+            shells[index].y > config.gameSettings.mapSize.y + 25 or shells[index].y < -25):
+            del shells[index]
+            # Deleting a shell will mess up the index so break and then check the rest of the shells the next time around
+            break
+
+    # Process movement and commands for each player
+    for clientID in list(wsServer.clients.keys()):
+        if wsServer.clients[clientID].type == config.serverSettings.clientTypes.player:
+            player = wsServer.clients[clientID]
+
+            if hasattr(player, "tank"):
+                # Update tank position
+                if player.tank.moving:
+                    player.tank.move(config.gameSettings.tankProps.speed * elapsedTime)
             else:
-                # Initialize a tank for any new players
-                aClient.tank = gameClasses.tank(100, 100, math.pi / 4)
+                # Initialize a tank if this a new player
+                player.tank = gameClasses.tank(100, 100, math.pi / 4)
 
                 # TODO: Debugging code
-                aClient.tank.status = config.serverSettings.tankStatus.alive
-                aClient.tank.moving = True
+                player.tank.status = config.serverSettings.tankStatus.alive
+                player.tank.moving = True
 
-            # Check for commands
-            if len(aClient.incoming) != 0:
-                command = aClient.incoming.pop()
-                if command.action == config.serverSettings.commands.turn:
-                    aClient.tank.heading = command.arg
+            # Execute any commands
+            if len(player.incoming) != 0:
+                command = player.incoming.pop()
+
+                if command.action == config.serverSettings.commands.fire:
+                    shells.append(gameClasses.shell(clientID, player.tank, command.arg))
+                elif command.action == config.serverSettings.commands.turn:
+                    player.tank.heading = command.arg
+                elif command.action == config.serverSettings.commands.stop:
+                    player.tank.moving = False
+                elif command.action == config.serverSettings.commands.go:
+                    player.tank.moving = True
+
+            # For now just kick any tanks that drive off the map
+            # TODO: Kill them instead
+            if (player.tank.x > config.gameSettings.mapSize.x + 25 or player.tank.x < -25 or
+                player.tank.y > config.gameSettings.mapSize.y + 25 or player.tank.y < -25):
+                    del wsServer.clients[clientID]
 
 # Send game state updates to clients
 #   (Called every time an update is due to be sent by wsServer.py)

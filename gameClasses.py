@@ -7,7 +7,7 @@ import copy
 # Stores the state data for one tank along with the status and score for its ai
 class tank:
     # Constructor
-    #   x, y, heading - The initial position and heading for the tank
+    #   x, y, heading:  The initial position and heading for the tank
     def __init__(self, x, y, heading):
         self.x = x                  # Current x position
         self.y = y                  # Current y position
@@ -26,7 +26,7 @@ class tank:
         self.y += math.sin(self.heading) * distance
 
     # Returns a dict of the tank's data
-    #   doClean - True/False to indicate if the dict should be cleaned for sending to players
+    #   doClean:    True/False to indicate if the dict should be cleaned for sending to players
     def toDict(self, doClean):
         myDict = copy.copy(self.__dict__)
 
@@ -39,7 +39,7 @@ class tank:
 # Stores the state data for a shell in flight
 class shell:
     # Constructor
-    #   tankId, tankObj - The clientID and object of the tank that shot the shell
+    #   tankId, tankObj:    The clientID and object of the tank that shot the shell
     def __init__(self, tankId, tankObj, heading):
         self.shooterId = tankId     # The id of the tank that shot it
         self.x = tankObj.x          # Current x position

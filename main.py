@@ -62,7 +62,7 @@ def gameLoop(elapsedTime):
             # TODO: Kill them instead
             if (player.tank.x > config.gameSettings.mapSize.x + 25 or player.tank.x < -25 or
                 player.tank.y > config.gameSettings.mapSize.y + 25 or player.tank.y < -25):
-                    del wsServer.clients[clientID]
+                    wsServer.complainAndKick(clientID, "Tank fell off the map")
 
 # Send game state updates to clients
 #   (Called every time an update is due to be sent by wsServer.py)

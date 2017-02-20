@@ -23,6 +23,11 @@ clients = dict()
 # Current number of connected players
 playerCount = 0
 
+# Handles logging of events
+def logPrint(message, minLevel):
+    if config.serverSettings.logLevel >= minLevel:
+        print(message)
+
 # Appends a message to the outgoing queues for the indicated client(s)
 #   recipient must be a valid int clientID or a type in config.serverSettings.clientTypes
 def send(recipient, message):
@@ -33,19 +38,18 @@ def send(recipient, message):
             if clients[clientID].type == recipient:
                 clients[clientID].outgoing.append(message)
 
-    if config.serverSettings.logLevel >= 2:
-        print("Message added to send queue for " + str(recipient) + ": " + message)
+    logPrint("Message added to send queue for " + str(recipient) + ": " + message, 2)
+
+# Appends an error message to a misbehaving client's outing queue which also marks it for being disconnected
+def complainAndKick(clientID, errorMessage):
+    logPrint("Kicking client " + str(clientID) + " for error: " + errorMessage, 1)
+    send(clientID, "[Error] " + errorMessage)
 
 # Starts the sever and asyncio loop
 #    frameCallback:    The function to call every frame
 #    updateCallback:   The function to call every client game state update
 def runServer(frameCallback, updateCallback):
     # --- Internal websocket server functions: ---
-
-    # Handles printing of debug info
-    def logPrint(message, minLevel):
-        if config.serverSettings.logLevel >= minLevel:
-            print(message)
 
     # Gets the delta between now and a given datetime in seconds
     def timeDelta(aTime):
@@ -88,17 +92,11 @@ def runServer(frameCallback, updateCallback):
                 # Build and append the command obj
                 clients[clientID].incoming.append(command())
         except websockets.exceptions.ConnectionClosed:
-            # The socket closed so remove the client
-            if clientID in clients: del clients[clientID]
-            playerCount -= 1
+            # The socket closed
+            pass
         except ValueError as e:
-            # Bad command
-            logPrint("Received invalid command from player: " + e.args[0], 1)
-
-            # Send error to client and disconnect
-            await clients[clientID].socket.send(e.args[0])
-            del clients[clientID]
-            playerCount -= 1
+            # Bad command so send error to client and disconnect
+            complainAndKick(clientID, e.args[0])
 
         logPrint("playerReceiveTask for " + str(clientID) + " exited", 1)
 
@@ -138,7 +136,7 @@ def runServer(frameCallback, updateCallback):
         # Add the client to the dictionary of active clients
         clients[clientID] = client(websocket, clientType)
 
-        logPrint("Client (clientID: " + str(clientID) + ", type: " + clients[clientID].type + ") connected at " + path, 1)
+        logPrint("Client (clientID: " + str(clientID) + ", type: " + clients[clientID].type + ") connected", 1)
 
         # Start a playerReceiveTask if this is a player
         if clientType == config.serverSettings.clientTypes.player:
@@ -148,11 +146,21 @@ def runServer(frameCallback, updateCallback):
         try:
             while clientID in clients:
                 if len(clients[clientID].outgoing) != 0:
-                    await clients[clientID].socket.send(clients[clientID].outgoing.pop(0))
+                    message = clients[clientID].outgoing.pop(0)
+                    await clients[clientID].socket.send(message)
+
+                    if message.startswith("[Error] "):
+                        # This is an error message so break out of loop to disconnect the client
+                        break
                 else:
                     await asyncio.sleep(0.05)
         except websockets.exceptions.ConnectionClosed:
             pass
+
+        # Clean up data for this client
+        del clients[clientID]
+        if clientType == config.serverSettings.clientTypes.player:
+            playerCount -= 1
 
         logPrint("handler for " + str(clientID) + " exited", 1)
         # (When this function returns the socket dies)

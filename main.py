@@ -39,11 +39,10 @@ def gameLoop(elapsedTime):
                     player.tank.move(config.gameSettings.tankProps.speed * elapsedTime)
             else:
                 # Initialize a tank if this a new player
-                player.tank = gameClasses.tank(100, 100, math.pi / 4)
+                player.tank = gameClasses.tank(config.gameSettings.mapSize.x / 2, config.gameSettings.mapSize.x / 2, 0)
 
                 # TODO: Debugging code
                 player.tank.status = config.serverSettings.tankStatus.alive
-                player.tank.moving = True
 
             # Execute any commands
             if len(player.incoming) != 0:

@@ -10,6 +10,7 @@ class gameSettings:
         speed = 25                      # In pixels per second
         height = 10                     # In pixels
         width = 10                      # In pixels
+        reloadTime = 2                  # Minimum time to reload the tank's cannon (in seconds)
 
     shellSpeed = 100                    # In pixels per second
 

@@ -40,21 +40,20 @@ def send(recipient, message):
 
     logPrint("Message added to send queue for " + str(recipient) + ": " + message, 2)
 
-# Appends an error message to a misbehaving client's outing queue which also marks it for being disconnected
-def complainAndKick(clientID, errorMessage):
-    logPrint("Kicking client " + str(clientID) + " for error: " + errorMessage, 1)
-    send(clientID, "[Error] " + errorMessage)
+# Appends an error message to a misbehaving client's outing queue
+#   If isFatal is True the client is also kicked
+def reportClientError(clientID, errorMessage, isFatal):
+    if isFatal: errorMessage = "[Fatal Error] " + errorMessage
+    else: errorMessage = "[Warning] " + errorMessage
+
+    logPrint("Error sent to client " + str(clientID) + ": " + errorMessage, 1)
+    send(clientID, errorMessage)
 
 # Starts the sever and asyncio loop
 #    frameCallback:    The function to call every frame
 #    updateCallback:   The function to call every client game state update
 def runServer(frameCallback, updateCallback):
     # --- Internal websocket server functions: ---
-
-    # Gets the delta between now and a given datetime in seconds
-    def timeDelta(aTime):
-        diff = datetime.datetime.now() - aTime
-        return diff.seconds + (diff.microseconds / 1000000)
 
     # Handles incoming messages from a player
     async def playerReceiveTask(clientID):
@@ -96,7 +95,7 @@ def runServer(frameCallback, updateCallback):
             pass
         except ValueError as e:
             # Bad command so send error to client and disconnect
-            complainAndKick(clientID, e.args[0])
+            reportClientError(clientID, e.args[0], True)
 
         logPrint("playerReceiveTask for " + str(clientID) + " exited", 1)
 
@@ -149,8 +148,8 @@ def runServer(frameCallback, updateCallback):
                     message = clients[clientID].outgoing.pop(0)
                     await clients[clientID].socket.send(message)
 
-                    if message.startswith("[Error] "):
-                        # This is an error message so break out of loop to disconnect the client
+                    if message.startswith("[Fatal Error]"):
+                        # This is a fatal error message so break out of loop to disconnect the client
                         break
                 else:
                     await asyncio.sleep(0.05)
@@ -183,7 +182,7 @@ def runServer(frameCallback, updateCallback):
 
         while True:
             # Calculate the time passed in seconds and adds it to the list of deltas
-            frameDelta = timeDelta(lastFrameTime)
+            frameDelta = (datetime.datetime.now() - lastFrameTime).total_seconds()
             lastFrameTime = datetime.datetime.now()
             deltas.append(frameDelta)
             if len(deltas) > 15:
@@ -203,7 +202,7 @@ def runServer(frameCallback, updateCallback):
             if config.serverSettings.logLevel >= 1:
                 frameCount += 1
 
-                if timeDelta(lastFSPLog) >= 5:
+                if (datetime.datetime.now() - lastFSPLog).total_seconds() >= 5:
                     logPrint("FPS: " + str(frameCount / 5), 1)
                     frameCount = 0
                     lastFSPLog = datetime.datetime.now()

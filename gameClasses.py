@@ -1,6 +1,7 @@
 import math
 import config
 import copy
+import datetime
 
 # Classes used to store game state data
 
@@ -14,11 +15,27 @@ class tank:
         self.heading = heading      # Current heading in radians from the +x axis
         self.moving = False         # Boolean for whether or not this tank is moving
 
+        # The datetime of this tank's last shot
+        self.__lastShotTime = datetime.datetime.now() - \
+                            datetime.timedelta(seconds=config.gameSettings.tankProps.reloadTime)
+
         # Current status for this tank
         self.status = config.serverSettings.tankStatus.dead
 
         self.kills = 0              # For the current round
         self.wins = 0               # Rounds won
+
+    # Checks if this tank can shoot
+    #   If shots are fired faster than this the server will kick the player
+    #   returns - True if the tank can shoot, False if not
+    def canShoot(self):
+        marginOfError = 0.2     # Used to account for network issues throwing off the timing
+        return datetime.timedelta(seconds=config.gameSettings.tankProps.reloadTime - marginOfError) <= \
+               datetime.datetime.now() - self.__lastShotTime
+    
+    # Called whenever a tank shoots so its __lastShotTime can be updated
+    def didShoot(self):
+        self.__lastShotTime = datetime.datetime.now()
 
     # Moves the tank the given distance along its current heading
     def move(self, distance):
@@ -30,6 +47,10 @@ class tank:
     def toDict(self, doClean):
         myDict = copy.copy(self.__dict__)
 
+        # The __lastShotTime should never be in a gameState update
+        del myDict["_tank__lastShotTime"]
+
+        # Remove scores if this update needs to be cleaned
         if doClean:
             del myDict["kills"]
             del myDict["wins"]

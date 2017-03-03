@@ -1,4 +1,3 @@
-import math
 import copy
 import json
 import wsServer
@@ -49,7 +48,11 @@ def gameLoop(elapsedTime):
                 command = player.incoming.pop()
 
                 if command.action == config.serverSettings.commands.fire:
-                    shells.append(gameClasses.shell(clientID, player.tank, command.arg))
+                    if player.tank.canShoot():
+                        player.tank.didShoot()
+                        shells.append(gameClasses.shell(clientID, player.tank, command.arg))
+                    else:
+                        wsServer.reportClientError(clientID, "Tank tried to shoot too quickly", False)
                 elif command.action == config.serverSettings.commands.turn:
                     player.tank.heading = command.arg
                 elif command.action == config.serverSettings.commands.stop:
@@ -61,14 +64,14 @@ def gameLoop(elapsedTime):
             # TODO: Kill them instead
             if (player.tank.x > config.gameSettings.mapSize.x + 25 or player.tank.x < -25 or
                 player.tank.y > config.gameSettings.mapSize.y + 25 or player.tank.y < -25):
-                    wsServer.complainAndKick(clientID, "Tank fell off the map")
+                    wsServer.reportClientError(clientID, "Tank fell off the map", True)
 
 # Send game state updates to clients
 #   (Called every time an update is due to be sent by wsServer.py)
 def updateClients():
     # Generates JSON for a given object
     #   doClean - True/False to indicate if the dict should be cleaned for sending to players
-    def generateJSON(obj, doClean):
+    def generateJSON(rootObj, doClean):
         # Function for helping the json encoder in parsing objects
         def objToDict(obj):
             if isinstance(obj, gameClasses.tank):
@@ -76,7 +79,7 @@ def updateClients():
             else:
                 return obj.__dict__
 
-        return json.dumps(objToDict(obj), default=objToDict, separators=(',', ':'))
+        return json.dumps(objToDict(rootObj), default=objToDict, separators=(',', ':'))
 
     # Build a gameState object
     class gameState:

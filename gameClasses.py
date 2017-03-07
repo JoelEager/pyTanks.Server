@@ -1,7 +1,8 @@
 import math
-import config
 import copy
 import datetime
+
+import config
 
 # Classes used to store game state data
 

@@ -4,24 +4,22 @@ import datetime
 import random
 import json
 import numbers
+
 import config
 
-# The websocket server and asyncio functions
-#   This takes care of managing the io for the clients and calling the given functions in gameMaster.py at the set rate
+# The pyTanks server backend and asyncio code
+#   This takes care of managing the io for the clients and calling gameManager.py's callbacks at the set rate
 
-# Used to store the info for active clients
+clients = dict()    # Each entry is one active client
+playerCount = 0     # Current number of connected players
+
+# Used to store the info for an active client
 class client:
     def __init__(self, clientSocket, type):
         self.socket = clientSocket  # The client's websocket
         self.type = type            # The type of client (valid types defined in config.serverSettings.clientTypes)
         self.outgoing = list()      # The outgoing message queue for this client
         self.incoming = list()      # The incoming message queue for this client
-
-# Each entry is one active client
-clients = dict()
-
-# Current number of connected players
-playerCount = 0
 
 # Handles logging of events
 def logPrint(message, minLevel):
@@ -30,15 +28,15 @@ def logPrint(message, minLevel):
 
 # Appends a message to the outgoing queues for the indicated client(s)
 #   recipient must be a valid int clientID or a type in config.serverSettings.clientTypes
-def send(recipient, message):
-    if isinstance(recipient, int):
-        clients[recipient].outgoing.append(message)
+def send(recipients, message):
+    if isinstance(recipients, int):
+        clients[recipients].outgoing.append(message)
     else:
         for clientID in clients:
-            if clients[clientID].type == recipient:
+            if clients[clientID].type == recipients:
                 clients[clientID].outgoing.append(message)
 
-    logPrint("Message added to send queue for " + str(recipient) + ": " + message, 2)
+    logPrint("Message added to send queue for " + str(recipients) + ": " + message, 2)
 
 # Appends an error message to a misbehaving client's outing queue
 #   If isFatal is True the client is also kicked
@@ -230,7 +228,14 @@ def runServer(frameCallback, updateCallback):
         asyncio.get_event_loop().set_debug(True)
 
     # Start the sever and asyncio loop
-    start_server = websockets.serve(clientHandler, config.serverSettings.ip, config.serverSettings.port)
-    asyncio.get_event_loop().run_until_complete(start_server)
-    logPrint("Server started", 1)
-    asyncio.get_event_loop().run_until_complete(frameLoop())
+    try:
+        ipAndPort = config.serverSettings.ipAndPort.split(":")
+        start_server = websockets.serve(clientHandler, ipAndPort[0], ipAndPort[1])
+        asyncio.get_event_loop().run_until_complete(start_server)
+        logPrint("Server started", 1)
+        asyncio.get_event_loop().run_until_complete(frameLoop())
+    except OSError:
+        print("Invalid ip and/or port")
+    except KeyboardInterrupt:
+        # Exit cleanly on ctrl-C
+        return

@@ -1,14 +1,15 @@
 import copy
 import json
+
 import wsServer
 import config
 import gameClasses
 
-# Main script of the pyTanks server
-#   This script starts wsServer.py with a callback to its gameLoop() function
-#   The gameLoop() function is called once a frame so it can maintain the game state
+# The logic for running the game and sending updates to clients
+#   gameLoop() is called once per frame to run the game logic
+#   updateClients() is called at the rate set in config.py for updating clients
 
-# Lists for the currently active shells and cover blocks
+# Lists for the currently active shells and walls
 shells = list()
 walls = list()
 
@@ -122,6 +123,3 @@ def updateClients():
         tanks[playerID].name = config.serverSettings.tankNames[playerID]
     currentGameState.tanks = list(tanks.values())
     wsServer.send(config.serverSettings.clientTypes.viewer, generateJSON(currentGameState, False))
-
-# Start the server with references to the callback functions
-wsServer.runServer(gameLoop, updateClients)

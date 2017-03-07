@@ -15,15 +15,15 @@ class gameSettings:
     shellSpeed = 100                    # In pixels per second
 
 class serverSettings:
-    ip = "127.0.0.1"                    # IP address to run the websocket server on
-    port = 5678                         # Port to run the websocket server on
+    # Both logLevel and ipAndPort can be overridden by command line args so the value here is only the default
+    ipAndPort = "localhost:9042"        # The server's IP address and port
+    logLevel = 1                        # Level of debugging logging for the websocket server
+    # (0 for minimal, 1 for FPS and connect/disconnect, 2 for all server status logs, 3 for all websocket logs)
+
     framesPerSecond = 60                # The target frame rate for the frameCallback function
     updatesPerSecond = 10               # How many game state updates should be sent to clients each second
     minPlayers = 4                      # Doesn't start a new game if there's less than this many player clients
     maxPlayers = 20                     # Won't let additional players connect once this number has been reached
-
-    # Level of debugging logging for the websocket server
-    logLevel = 1  # 0 for none, 1 for FPS and connect/disconnect, 2 for all server status logs, 3 for all websocket logs
 
     class apiPaths:
         viewer = "/pyTanksAPI/viewer"   # Path that viewer clients connect on

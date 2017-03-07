@@ -2,8 +2,8 @@
  \- A battleground for Python AIs to fight it out.
 
 pyTanks is a project in three modules:
-- Player - A Python AI that connects to the server and plays the game of tanks.
-- Viewer - A JavaScript/HTML UI for humans to view the ongoing battle.
+- [Player](https://github.com/JoelEager/pyTanks.Player) - A Python AI that connects to the server and plays the game of tanks.
+- [Viewer](https://github.com/JoelEager/pyTanks.Viewer) - A JavaScript/HTML UI for humans to view the ongoing battle.
 - Server - A Python server that hosts a top-down, simplistic game of tanks. This takes care of maintaining the game state, handling commands from the players, and sending game state updates to both viewers and players.
 
 Requirements:

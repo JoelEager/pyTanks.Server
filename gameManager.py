@@ -25,7 +25,7 @@ def gameLoop(elapsedTime):
         if (shells[index].x > config.gameSettings.mapSize.x + 25 or shells[index].x < -25 or
             shells[index].y > config.gameSettings.mapSize.y + 25 or shells[index].y < -25):
             del shells[index]
-            # Deleting a shell will mess up the index so break and then check the rest of the shells the next time around
+            # Can't delete an item in the loop so break and then check the rest of the shells the next time around
             break
 
     # Process movement and commands for each player
@@ -49,7 +49,7 @@ def gameLoop(elapsedTime):
                 command = player.incoming.pop()
 
                 if command.action == config.serverSettings.commands.fire:
-                    if player.tank.canShoot():
+                    if player.tank.canShoot(command.arrivalTime):
                         player.tank.didShoot()
                         shells.append(gameClasses.shell(clientID, player.tank, command.arg))
                     else:

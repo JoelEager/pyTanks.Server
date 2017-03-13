@@ -29,10 +29,10 @@ class tank:
     # Checks if this tank can shoot
     #   If shots are fired faster than this the server will kick the player
     #   returns - True if the tank can shoot, False if not
-    def canShoot(self):
+    def canShoot(self, timeOfShot):
         marginOfError = 0.2     # Used to account for network issues throwing off the timing
         return datetime.timedelta(seconds=config.gameSettings.tankProps.reloadTime - marginOfError) <= \
-               datetime.datetime.now() - self.__lastShotTime
+            timeOfShot - self.__lastShotTime
     
     # Called whenever a tank shoots so its __lastShotTime can be updated
     def didShoot(self):

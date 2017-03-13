@@ -87,7 +87,10 @@ def runServer(frameCallback, updateCallback):
                         raise ValueError("Missing or invalid arg")
 
                 # Build and append the command obj
-                clients[clientID].incoming.append(command())
+                commandObj = command()
+                if commandObj.action == config.serverSettings.commands.fire:
+                    command.arrivalTime = datetime.datetime.now()
+                clients[clientID].incoming.append(commandObj)
         except websockets.exceptions.ConnectionClosed:
             # The socket closed
             pass

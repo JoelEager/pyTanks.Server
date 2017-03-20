@@ -50,8 +50,8 @@ def gameLoop(elapsedTime):
                         break
             else:
                 # Initialize a tank if this a new player
-                halfWidth = (config.gameSettings.map.width / 2) - 10
-                halfHeight = (config.gameSettings.map.height / 2) - 10
+                halfWidth = (config.gameSettings.map.width / 2) - config.gameSettings.tank.width
+                halfHeight = (config.gameSettings.map.height / 2) - config.gameSettings.tank.height
                 player.tank = gameClasses.tank(halfWidth + randint(-halfWidth, halfWidth),
                                                halfHeight + randint(-halfHeight, halfHeight), 0)
 

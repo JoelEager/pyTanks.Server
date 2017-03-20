@@ -18,7 +18,7 @@ class tank:
 
         # The datetime of this tank's last shot
         self.__lastShotTime = datetime.datetime.now() - \
-                            datetime.timedelta(seconds=config.gameSettings.tankProps.reloadTime)
+                            datetime.timedelta(seconds=config.gameSettings.tank.reloadTime)
 
         # Current status for this tank
         self.status = config.serverSettings.tankStatus.dead
@@ -28,10 +28,10 @@ class tank:
 
     # Checks if this tank can shoot
     #   If shots are fired faster than this the server will kick the player
-    #   returns - True if the tank can shoot, False if not
+    #   returns: True if the tank can shoot, False if not
     def canShoot(self, timeOfShot):
         marginOfError = 0.2     # Used to account for network issues throwing off the timing
-        return datetime.timedelta(seconds=config.gameSettings.tankProps.reloadTime - marginOfError) <= \
+        return datetime.timedelta(seconds=config.gameSettings.tank.reloadTime - marginOfError) <= \
             timeOfShot - self.__lastShotTime
     
     # Called whenever a tank shoots so its __lastShotTime can be updated
@@ -57,6 +57,13 @@ class tank:
             del myDict["wins"]
 
         return myDict
+    
+    # Returns the tank's polygon as a list of points as tuples
+    def toPoly(self):
+        halfWidth = config.gameSettings.tank.width / 2
+        halfHeight = config.gameSettings.tank.height / 2
+        return [(self.x - halfWidth, self.y - halfHeight), (self.x - halfWidth, self.y + halfHeight), 
+                (self.x + halfWidth, self.y - halfHeight), (self.x + halfWidth, self.y + halfHeight)]
 
 # Stores the state data for a shell in flight
 class shell:
@@ -72,6 +79,13 @@ class shell:
     def move(self, distance):
         self.x += math.cos(self.heading) * distance
         self.y += math.sin(self.heading) * distance
+    
+    # Returns the shell's polygon as a list of points as tuples
+    def toPoly(self):
+        halfWidth = config.gameSettings.shell.width / 2
+        halfHeight = config.gameSettings.shell.height / 2
+        return [(self.x - halfWidth, self.y - halfHeight), (self.x - halfWidth, self.y + halfHeight), 
+                (self.x + halfWidth, self.y - halfHeight), (self.x + halfWidth, self.y + halfHeight)]
 
 # Stores the state data for a block of cover on the map
 class wall:
@@ -80,3 +94,10 @@ class wall:
         self.y = y                  # Y position
         self.width = width          # Width
         self.height = height        # Height
+
+    # Returns the wall's polygon as a list of points as tuples
+    def toPoly(self):
+        return [(self.x - self.width / 2, self.y - self.height / 2),
+                (self.x - self.width / 2, self.y + self.height / 2),
+                (self.x + self.width / 2, self.y - self.height / 2),
+                (self.x + self.width / 2, self.y + self.height / 2)]

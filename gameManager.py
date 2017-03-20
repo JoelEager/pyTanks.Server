@@ -1,9 +1,11 @@
 import copy
 import json
+from random import randint
 
 import wsServer
 import config
 import gameClasses
+import collisionDetector
 
 # The logic for running the game and sending updates to clients
 #   gameLoop() is called once per frame to run the game logic
@@ -17,16 +19,18 @@ walls = list()
 #   (Called once every frame by wsServer.py)
 #   elapsedTime:    The time elapsed in seconds since the last frame
 def gameLoop(elapsedTime):
-    # Move the shells
+    # Move the shells and check for collisions with the map bounds
+    outOfBoundsShells = list()
     for index in range(0, len(shells)):
         shells[index].move(config.gameSettings.shell.speed * elapsedTime)
 
         # Discard any shells that fly off the map
-        if (shells[index].x > config.gameSettings.map.width + 25 or shells[index].x < -25 or
-            shells[index].y > config.gameSettings.map.height + 25 or shells[index].y < -25):
-            del shells[index]
-            # Can't delete an item in the loop so break and then check the rest of the shells the next time around
-            break
+        if (shells[index].x > config.gameSettings.map.width or shells[index].x < 0 or
+            shells[index].y > config.gameSettings.map.height or shells[index].y < 0):
+            outOfBoundsShells.insert(0, index)
+
+    for index in outOfBoundsShells:
+        del shells[index]
 
     # Process movement and commands for each player
     for clientID in list(wsServer.clients.keys()):
@@ -37,9 +41,19 @@ def gameLoop(elapsedTime):
                 # Update tank position
                 if player.tank.moving:
                     player.tank.move(config.gameSettings.tank.speed * elapsedTime)
+
+                # If a tank collides with the map bounds move it back
+                for point in player.tank.toPoly():
+                    if (point[0] > config.gameSettings.map.width or point[0] < 0 or
+                            point[1] > config.gameSettings.map.height or point[1] < 0):
+                        player.tank.move(-config.gameSettings.tank.speed * elapsedTime)
+                        break
             else:
                 # Initialize a tank if this a new player
-                player.tank = gameClasses.tank(config.gameSettings.map.width / 2, config.gameSettings.map.width / 2, 0)
+                halfWidth = (config.gameSettings.map.width / 2) - 10
+                halfHeight = (config.gameSettings.map.height / 2) - 10
+                player.tank = gameClasses.tank(halfWidth + randint(-halfWidth, halfWidth),
+                                               halfHeight + randint(-halfHeight, halfHeight), 0)
 
                 # TODO: Debugging code
                 player.tank.status = config.serverSettings.tankStatus.alive
@@ -61,11 +75,15 @@ def gameLoop(elapsedTime):
                 elif command.action == config.serverSettings.commands.go:
                     player.tank.moving = True
 
-            # For now just kick any tanks that drive off the map
-            # TODO: Kill them instead
-            if (player.tank.x > config.gameSettings.map.width + 25 or player.tank.x < -25 or
-                player.tank.y > config.gameSettings.map.height + 25 or player.tank.y < -25):
-                    wsServer.reportClientError(clientID, "Tank fell off the map", True)
+            # Check if the tank is hit
+            for index in range(0, len(shells)):
+                shell = shells[index]
+                if shell.shooterId != clientID:
+                    if collisionDetector.hasCollided(player.tank.toPoly(), shell.toPoly(), maxDist=collisionDetector.tankShellCollisionMaxDist):
+                        # TODO: Kill the tank instead of kicking them
+                        wsServer.reportClientError(clientID, "You died.", True)
+                        del shells[index]
+                        break
 
 # Send game state updates to clients
 #   (Called every time an update is due to be sent by wsServer.py)

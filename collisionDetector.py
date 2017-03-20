@@ -1,14 +1,27 @@
+import config
+
 # Performs collision detection on convex 2D polygons by means of the Separating axis theorem (SAT)
 #   The contents of this file are based of off a python implementation of SAT created by JuantAldea. The original
 #   version is available at https://github.com/JuantAldea/Separating-Axis-Theorem/. That code is under the GNU General
 #   Public License, but I (Joel Eager) have received written permission to distribute this modified version under the
 #   MIT license.
 
+# Finds the maximum distance between any two points on two objects such that the objects could be touching
+def getMaxDist(obj1, obj2):
+    from math import sqrt
+
+    obj1Size = sqrt(obj1.width ** 2 + obj1.height ** 2)
+    obj2Size = sqrt(obj2.width ** 2 + obj2.height ** 2)
+
+    return obj1Size + obj2Size
+
+tankShellCollisionMaxDist = getMaxDist(config.gameSettings.tank, config.gameSettings.shell)
+
 # Checks for a collision between two polygons using SAT
 #   poly1, poly2:   The two polygons described as lists of points as tuples (Example: [(x1, y1), (x2, y2), (x3, y3)])
 #   maxDist:        The maximum distance between any two points of any two polygons that can be touching
 #                   (If this is left off the optimization check that uses it will be skipped)
-def collisionCheck(poly1, poly2, maxDist=None):
+def hasCollided(poly1, poly2, maxDist=None):
     from math import sqrt
 
     def normalizeVector(vector):

@@ -6,17 +6,6 @@ import config
 #   Public License, but I (Joel Eager) have received written permission to distribute this modified version under the
 #   MIT license.
 
-# Finds the maximum distance between any two points on two objects such that the objects could be touching
-def getMaxDist(obj1, obj2):
-    from math import sqrt
-
-    obj1Size = sqrt(obj1.width ** 2 + obj1.height ** 2)
-    obj2Size = sqrt(obj2.width ** 2 + obj2.height ** 2)
-
-    return obj1Size + obj2Size
-
-tankShellCollisionMaxDist = getMaxDist(config.gameSettings.tank, config.gameSettings.shell)
-
 # Checks for a collision between two polygons using SAT
 #   poly1, poly2:   The two polygons described as lists of points as tuples (Example: [(x1, y1), (x2, y2), (x3, y3)])
 #   maxDist:        The maximum distance between any two points of any two polygons that can be touching
@@ -89,3 +78,18 @@ def hasCollided(poly1, poly2, maxDist=None):
     else:
         # No maxDist so run SAT on the polys
         return runSAT(poly1, poly2)
+
+# Finds a maxDist for two rectangles that can be feed into hasCollided()
+#   (To do so this function finds the maximum distance that can any two corners on two rectangles can be separated by
+#   while the rectangles are touching.)
+#   rect1, rect2:   Objects or classes representing rectangles with width and height fields
+def getMaxDist(rect1, rect2):
+    from math import sqrt
+
+    rect1Size = sqrt(rect1.width ** 2 + rect1.height ** 2)
+    rect2Size = sqrt(rect2.width ** 2 + rect2.height ** 2)
+
+    return rect1Size + rect2Size
+
+# Static field holding a maxDist for use when checking collisions between tanks and shells
+tankShellCollisionMaxDist = getMaxDist(config.gameSettings.tank, config.gameSettings.shell)

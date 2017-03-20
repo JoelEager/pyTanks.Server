@@ -22,5 +22,8 @@ The pyTanks server uses the settings found in config.py to control how the serve
 - log=n - Overrides the default logging level. (Replace n with 0 for minimal logging, 1 for FPS and connect/disconnect logs, 2 for all server status logs, or 3 for all websocket logs.)
 - ip:port - Overrides the ip and port used to host the server.
 
+#### Licensing note:
+The contents of collisionDetector.py are based of off a python implementation of SAT created by JuantAldea. The original version is available at https://github.com/JuantAldea/Separating-Axis-Theorem/. That code is under the GNU General Public License, but I (Joel Eager) have received written permission to distribute this modified version under the MIT license.
+
 ---
 (For the other modules see the repos linked at the top of this readme.)

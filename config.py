@@ -1,18 +1,21 @@
 # Configuration settings for both the game and the server
 
 class gameSettings:
-    class mapSize:
+    class map:
         # (0, 0) is the upper left corner with +x going to the right and +y going down
-        x = 500                         # In pixels
-        y = 500                         # In pixels
+        width = 500                     # In pixels
+        height = 500                    # In pixels
 
-    class tankProps:
+    class tank:
         speed = 25                      # In pixels per second
         height = 10                     # In pixels
         width = 10                      # In pixels
         reloadTime = 2                  # Minimum time to reload the tank's cannon (in seconds)
 
-    shellSpeed = 100                    # In pixels per second
+    class shell:
+        speed = 100                     # In pixels per second
+        height = 1                      # In pixels
+        width = 1                       # In pixels
 
 class serverSettings:
     # Both logLevel and ipAndPort can be overridden by command line args so the value here is only the default

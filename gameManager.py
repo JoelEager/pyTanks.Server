@@ -19,11 +19,11 @@ walls = list()
 def gameLoop(elapsedTime):
     # Move the shells
     for index in range(0, len(shells)):
-        shells[index].move(config.gameSettings.shellSpeed * elapsedTime)
+        shells[index].move(config.gameSettings.shell.speed * elapsedTime)
 
         # Discard any shells that fly off the map
-        if (shells[index].x > config.gameSettings.mapSize.x + 25 or shells[index].x < -25 or
-            shells[index].y > config.gameSettings.mapSize.y + 25 or shells[index].y < -25):
+        if (shells[index].x > config.gameSettings.map.width + 25 or shells[index].x < -25 or
+            shells[index].y > config.gameSettings.map.height + 25 or shells[index].y < -25):
             del shells[index]
             # Can't delete an item in the loop so break and then check the rest of the shells the next time around
             break
@@ -36,10 +36,10 @@ def gameLoop(elapsedTime):
             if hasattr(player, "tank"):
                 # Update tank position
                 if player.tank.moving:
-                    player.tank.move(config.gameSettings.tankProps.speed * elapsedTime)
+                    player.tank.move(config.gameSettings.tank.speed * elapsedTime)
             else:
                 # Initialize a tank if this a new player
-                player.tank = gameClasses.tank(config.gameSettings.mapSize.x / 2, config.gameSettings.mapSize.x / 2, 0)
+                player.tank = gameClasses.tank(config.gameSettings.map.width / 2, config.gameSettings.map.width / 2, 0)
 
                 # TODO: Debugging code
                 player.tank.status = config.serverSettings.tankStatus.alive
@@ -63,8 +63,8 @@ def gameLoop(elapsedTime):
 
             # For now just kick any tanks that drive off the map
             # TODO: Kill them instead
-            if (player.tank.x > config.gameSettings.mapSize.x + 25 or player.tank.x < -25 or
-                player.tank.y > config.gameSettings.mapSize.y + 25 or player.tank.y < -25):
+            if (player.tank.x > config.gameSettings.map.width + 25 or player.tank.x < -25 or
+                player.tank.y > config.gameSettings.map.height + 25 or player.tank.y < -25):
                     wsServer.reportClientError(clientID, "Tank fell off the map", True)
 
 # Send game state updates to clients

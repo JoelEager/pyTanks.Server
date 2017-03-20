@@ -7,7 +7,7 @@
 # Checks for a collision between two polygons using SAT
 #   poly1, poly2:   The two polygons described as lists of points as tuples (Example: [(x1, y1), (x2, y2), (x3, y3)])
 #   maxDist:        The maximum distance between any two points of any two polygons that can be touching
-#                   (If this is left of the optimization check that uses it will be skipped)
+#                   (If this is left off the optimization check that uses it will be skipped)
 def collisionCheck(poly1, poly2, maxDist=None):
     from math import sqrt
 

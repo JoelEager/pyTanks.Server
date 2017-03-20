@@ -15,9 +15,9 @@ playerCount = 0     # Current number of connected players
 
 # Used to store the info for an active client
 class client:
-    def __init__(self, clientSocket, type):
+    def __init__(self, clientSocket, clientType):
         self.socket = clientSocket  # The client's websocket
-        self.type = type            # The type of client (valid types defined in config.serverSettings.clientTypes)
+        self.type = clientType      # The type of client (valid types defined in config.serverSettings.clientTypes)
         self.outgoing = list()      # The outgoing message queue for this client
         self.incoming = list()      # The incoming message queue for this client
 

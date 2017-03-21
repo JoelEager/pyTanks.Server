@@ -1,3 +1,5 @@
+from math import sqrt
+
 import config
 
 # Performs collision detection on convex 2D polygons by means of the Separating axis theorem (SAT)
@@ -11,8 +13,6 @@ import config
 #   maxDist:        The maximum distance between any two points of any two polygons that can be touching
 #                   (If this is left off the optimization check that uses it will be skipped)
 def hasCollided(poly1, poly2, maxDist=None):
-    from math import sqrt
-
     def normalizeVector(vector):
         norm = sqrt(vector[0] ** 2 + vector[1] ** 2)
         return vector[0] / norm, vector[1] / norm
@@ -70,7 +70,7 @@ def hasCollided(poly1, poly2, maxDist=None):
 
     # Do an optimization check using the maxDist
     if maxDist is not None:
-        if sqrt((poly1[1][0] - poly2[0][0]) ** 2 + (poly1[1][1] - poly2[0][1]) ** 2) <= maxDist:
+        if (poly1[1][0] - poly2[0][0]) ** 2 + (poly1[1][1] - poly2[0][1]) ** 2 <= maxDist ** 2:
             # Collision is possible so run SAT on the polys
             return runSAT(poly1, poly2)
         else:
@@ -84,8 +84,6 @@ def hasCollided(poly1, poly2, maxDist=None):
 #   while the rectangles are touching.)
 #   rect1, rect2:   Objects or classes representing rectangles with width and height fields
 def getMaxDist(rect1, rect2):
-    from math import sqrt
-
     rect1Size = sqrt(rect1.width ** 2 + rect1.height ** 2)
     rect2Size = sqrt(rect2.width ** 2 + rect2.height ** 2)
 

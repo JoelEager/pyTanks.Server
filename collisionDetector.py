@@ -1,10 +1,10 @@
 import config
 
 # Performs collision detection on convex 2D polygons by means of the Separating axis theorem (SAT)
-#   The contents of this file are based of off a python implementation of SAT created by JuantAldea. The original
-#   version is available at https://github.com/JuantAldea/Separating-Axis-Theorem/. That code is under the GNU General
-#   Public License, but I (Joel Eager) have received written permission to distribute this modified version under the
-#   MIT license.
+#   The contents of this file are based of off a python implementation of SAT created by Juan Antonio Aldea Armenteros.
+#   The original version is available at https://github.com/JuantAldea/Separating-Axis-Theorem/. That code is under the
+#   GNU General Public License, but I (Joel Eager) have received written permission to distribute this modified version
+#   under the MIT license.
 
 # Checks for a collision between two polygons using SAT
 #   poly1, poly2:   The two polygons described as lists of points as tuples (Example: [(x1, y1), (x2, y2), (x3, y3)])

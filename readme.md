@@ -23,7 +23,7 @@ The pyTanks server uses the settings found in config.py to control how the serve
 - ip:port - Overrides the ip and port used to host the server.
 
 #### Licensing note:
-The contents of collisionDetector.py are based of off a Python implementation of Separating Axis Theorem created by Juan Antonio Aldea Armenteros. The original version is available at https://github.com/JuantAldea/Separating-Axis-Theorem/. That code is under the GNU General Public License, but I (Joel Eager) have received written permission to distribute this modified version under the MIT license.
+The contents of collisionDetector.py are based of off a Python implementation of Separating Axis Theorem created by Juan Antonio Aldea Armenteros. The original version is available [here](https://github.com/JuantAldea/Separating-Axis-Theorem/). That code is under the GNU General Public License, but I (Joel Eager) have received written permission to distribute this modified version under the MIT license.
 
 ---
 (For the other modules see the repos linked at the top of this readme.)

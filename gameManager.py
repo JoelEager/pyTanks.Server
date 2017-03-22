@@ -33,6 +33,8 @@ def gameLoop(elapsedTime):
         del shells[index]
 
     # Process movement and commands for each player
+    stoppedTanks = list()
+    movedTanks = list()
     for clientID in list(wsServer.clients.keys()):
         if wsServer.clients[clientID].type == config.serverSettings.clientTypes.player:
             player = wsServer.clients[clientID]
@@ -42,18 +44,37 @@ def gameLoop(elapsedTime):
                 if player.tank.moving:
                     player.tank.move(config.gameSettings.tank.speed * elapsedTime)
 
-                # If a tank collides with the map bounds move it back
-                for point in player.tank.toPoly():
-                    if (point[0] > config.gameSettings.map.width or point[0] < 0 or
-                            point[1] > config.gameSettings.map.height or point[1] < 0):
-                        player.tank.move(-config.gameSettings.tank.speed * elapsedTime)
-                        break
+                    # If the tank collides with the map bounds move it back
+                    for point in player.tank.toPoly():
+                        if (point[0] > config.gameSettings.map.width or point[0] < 0 or
+                                point[1] > config.gameSettings.map.height or point[1] < 0):
+                            player.tank.move(-config.gameSettings.tank.speed * elapsedTime)
+                            break
+
+                    # If the tank collides with a stopped tank move it back
+                    for otherTank in stoppedTanks:
+                        if collisionDetector.hasCollided(player.tank.toPoly(), otherTank.toPoly(),
+                                                         maxDist=collisionDetector.maxDistValues.tankTank):
+                            player.tank.move(-config.gameSettings.tank.speed * elapsedTime)
+                            break
+
+                    # If the tank collides with a tank that's already been moved then move it back
+                    for otherTank in movedTanks:
+                        if collisionDetector.hasCollided(player.tank.toPoly(), otherTank.toPoly(),
+                                                         maxDist=collisionDetector.maxDistValues.tankTank):
+                            player.tank.move(-config.gameSettings.tank.speed * elapsedTime)
+                            break
+
+                    movedTanks.append(player.tank)
+                else:
+                    stoppedTanks.append(player.tank)
             else:
                 # Initialize a tank if this a new player
                 halfWidth = (config.gameSettings.map.width / 2) - config.gameSettings.tank.width
                 halfHeight = (config.gameSettings.map.height / 2) - config.gameSettings.tank.height
                 player.tank = gameClasses.tank(halfWidth + randint(-halfWidth, halfWidth),
                                                halfHeight + randint(-halfHeight, halfHeight), 0)
+                # TODO: Prevent spawning in invalid locations
 
                 # TODO: Debugging code
                 player.tank.status = config.serverSettings.tankStatus.alive
@@ -79,7 +100,8 @@ def gameLoop(elapsedTime):
             for index in range(0, len(shells)):
                 shell = shells[index]
                 if shell.shooterId != clientID:
-                    if collisionDetector.hasCollided(player.tank.toPoly(), shell.toPoly(), maxDist=collisionDetector.tankShellCollisionMaxDist):
+                    if collisionDetector.hasCollided(player.tank.toPoly(), shell.toPoly(),
+                                                     maxDist=collisionDetector.maxDistValues.tankShell):
                         # TODO: Kill the tank instead of kicking them
                         wsServer.reportClientError(clientID, "You died.", True)
                         del shells[index]

@@ -17,8 +17,7 @@ class tank:
         self.moving = False         # Boolean for whether or not this tank is moving
 
         # The datetime of this tank's last shot
-        self.__lastShotTime = datetime.datetime.now() - \
-                            datetime.timedelta(seconds=config.gameSettings.tank.reloadTime)
+        self.__lastShotTime = datetime.datetime.now() - datetime.timedelta(seconds=config.gameSettings.tank.reloadTime)
 
         # Current status for this tank
         self.status = config.serverSettings.tankStatus.dead

@@ -41,8 +41,10 @@ def send(recipients, message):
 # Appends an error message to a misbehaving client's outing queue
 #   If isFatal is True the client is also kicked
 def reportClientError(clientID, errorMessage, isFatal):
-    if isFatal: errorMessage = "[Fatal Error] " + errorMessage
-    else: errorMessage = "[Warning] " + errorMessage
+    if isFatal:
+        errorMessage = "[Fatal Error] " + errorMessage
+    else:
+        errorMessage = "[Warning] " + errorMessage
 
     logPrint("Error sent to client " + str(clientID) + ": " + errorMessage, 1)
     send(clientID, errorMessage)

@@ -11,7 +11,7 @@ import collisionDetector
 #   gameLoop() is called once per frame to run the game logic
 #   updateClients() is called at the rate set in config.py for updating clients
 
-# Lists for the currently active shells and walls
+# Lists for the current shells and walls
 shells = list()
 walls = list()
 
@@ -19,6 +19,39 @@ walls = list()
 #   (Called once every frame by wsServer.py)
 #   elapsedTime:    The time elapsed in seconds since the last frame
 def gameLoop(elapsedTime):
+    # Temporary, per-frame lists
+    players = list()        # A complete list of the clientIDs of players with tanks
+    otherTanks = list()     # The list of stopped tanks and already moved tanks used by checkTankLocation()
+
+    # Checks a tank's location against the map bounds, the otherTanks list, and the list of walls
+    #   If the tank has collided with any of those it is moved back and the moving property is set to False
+    def checkTankLocation(tankToCheck):
+        def didCollide():
+            tankToCheck.move(-config.gameSettings.tank.speed * elapsedTime)
+            tankToCheck.moving = False
+
+        # Check for collisions with map bounds
+        for point in tankToCheck.toPoly():
+            if (point[0] > config.gameSettings.map.width or point[0] < 0 or point[1] > config.gameSettings.map.height
+                    or point[1] < 0):
+                didCollide()
+                return
+
+        # Check for collisions with other tanks
+        for otherTank in otherTanks:
+            if collisionDetector.hasCollided(tankToCheck.toPoly(), otherTank.toPoly(),
+                                             maxDist=collisionDetector.maxDistValues.tankTank):
+                didCollide()
+                return
+
+        # Check for collisions with walls
+        #for wall in walls:
+        #    wallTank = collisionDetector.getMaxDist(tankToCheck, wall)
+        #    if collisionDetector.hasCollided(player.tank.toPoly(), wall.toPoly(), maxDist=wallTank):
+        #        didCollide()
+        #        return
+        # TODO: Uncomment and test once walls are implemented
+
     # Move the shells and check for collisions with the map bounds
     outOfBoundsShells = list()
     for index in range(0, len(shells)):
@@ -26,50 +59,42 @@ def gameLoop(elapsedTime):
 
         # Discard any shells that fly off the map
         if (shells[index].x > config.gameSettings.map.width or shells[index].x < 0 or
-            shells[index].y > config.gameSettings.map.height or shells[index].y < 0):
+                shells[index].y > config.gameSettings.map.height or shells[index].y < 0):
             outOfBoundsShells.insert(0, index)
 
     for index in outOfBoundsShells:
         del shells[index]
 
-    # Process movement and commands for each player
-    stoppedTanks = list()
-    movedTanks = list()
+    # Fill the per-frame lists, execute any commands, and create tanks for new players
     for clientID in list(wsServer.clients.keys()):
         if wsServer.clients[clientID].type == config.serverSettings.clientTypes.player:
             player = wsServer.clients[clientID]
 
             if hasattr(player, "tank"):
-                # Update tank position
-                if player.tank.moving:
-                    player.tank.move(config.gameSettings.tank.speed * elapsedTime)
+                # Execute any commands
+                if len(player.incoming) != 0:
+                    command = player.incoming.pop()
 
-                    # If the tank collides with the map bounds move it back
-                    for point in player.tank.toPoly():
-                        if (point[0] > config.gameSettings.map.width or point[0] < 0 or
-                                point[1] > config.gameSettings.map.height or point[1] < 0):
-                            player.tank.move(-config.gameSettings.tank.speed * elapsedTime)
-                            break
+                    if command.action == config.serverSettings.commands.fire:
+                        if player.tank.canShoot(command.arrivalTime):
+                            player.tank.didShoot()
+                            shells.append(gameClasses.shell(clientID, player.tank, command.arg))
+                        else:
+                            wsServer.reportClientError(clientID, "Tank tried to shoot too quickly", False)
+                    elif command.action == config.serverSettings.commands.turn:
+                        player.tank.heading = command.arg
+                    elif command.action == config.serverSettings.commands.stop:
+                        player.tank.moving = False
+                    elif command.action == config.serverSettings.commands.go:
+                        player.tank.moving = True
 
-                    # If the tank collides with a stopped tank move it back
-                    for otherTank in stoppedTanks:
-                        if collisionDetector.hasCollided(player.tank.toPoly(), otherTank.toPoly(),
-                                                         maxDist=collisionDetector.maxDistValues.tankTank):
-                            player.tank.move(-config.gameSettings.tank.speed * elapsedTime)
-                            break
+                    # If there's another queued command it'll be processed in the next frame
 
-                    # If the tank collides with a tank that's already been moved then move it back
-                    for otherTank in movedTanks:
-                        if collisionDetector.hasCollided(player.tank.toPoly(), otherTank.toPoly(),
-                                                         maxDist=collisionDetector.maxDistValues.tankTank):
-                            player.tank.move(-config.gameSettings.tank.speed * elapsedTime)
-                            break
-
-                    movedTanks.append(player.tank)
-                else:
-                    stoppedTanks.append(player.tank)
+                # Add stopped tanks to the list of otherTanks
+                if not player.tank.moving:
+                    otherTanks.append(player.tank)
             else:
-                # Initialize a tank if this a new player
+                # New player so initialize a tank
                 halfWidth = (config.gameSettings.map.width / 2) - config.gameSettings.tank.width
                 halfHeight = (config.gameSettings.map.height / 2) - config.gameSettings.tank.height
                 player.tank = gameClasses.tank(halfWidth + randint(-halfWidth, halfWidth),
@@ -79,33 +104,34 @@ def gameLoop(elapsedTime):
                 # TODO: Debugging code
                 player.tank.status = config.serverSettings.tankStatus.alive
 
-            # Execute any commands
-            if len(player.incoming) != 0:
-                command = player.incoming.pop()
+            # Append the player's id to the list of players
+            players.append(clientID)
 
-                if command.action == config.serverSettings.commands.fire:
-                    if player.tank.canShoot(command.arrivalTime):
-                        player.tank.didShoot()
-                        shells.append(gameClasses.shell(clientID, player.tank, command.arg))
-                    else:
-                        wsServer.reportClientError(clientID, "Tank tried to shoot too quickly", False)
-                elif command.action == config.serverSettings.commands.turn:
-                    player.tank.heading = command.arg
-                elif command.action == config.serverSettings.commands.stop:
-                    player.tank.moving = False
-                elif command.action == config.serverSettings.commands.go:
-                    player.tank.moving = True
+    # Update positions for any moving tanks and check for collisions on all tanks
+    for clientID in players:
+        tank = wsServer.clients[clientID].tank
 
-            # Check if the tank is hit
-            for index in range(0, len(shells)):
-                shell = shells[index]
-                if shell.shooterId != clientID:
-                    if collisionDetector.hasCollided(player.tank.toPoly(), shell.toPoly(),
-                                                     maxDist=collisionDetector.maxDistValues.tankShell):
-                        # TODO: Kill the tank instead of kicking them
-                        wsServer.reportClientError(clientID, "You died.", True)
-                        del shells[index]
-                        break
+        # Move the tank if it is moving
+        if tank.moving:
+            tank.move(config.gameSettings.tank.speed * elapsedTime)
+
+        # Check if the tank is hit
+        for index in range(0, len(shells)):
+            shell = shells[index]
+            # This if statement keeps a tank from being hit by it's own shell on the same frame as it shot that shell
+            if shell.shooterId != clientID:
+                if collisionDetector.hasCollided(tank.toPoly(), shell.toPoly(),
+                                                 maxDist=collisionDetector.maxDistValues.tankShell):
+                    # TODO: Kill the tank instead of kicking them
+                    wsServer.reportClientError(clientID, "You were hit by the " +
+                                               config.serverSettings.tankNames[shell.shooterId], True)
+                    del shells[index]
+                    break
+
+        # Location checking is only needed for moving tanks
+        if tank.moving:
+            checkTankLocation(tank)
+            otherTanks.append(tank)
 
 # Send game state updates to clients
 #   (Called every time an update is due to be sent by wsServer.py)

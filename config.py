@@ -38,7 +38,8 @@ class serverSettings:
 
     class tankStatus:
         alive = "alive"                 # The tank is alive and in play
-        dead = "dead"                   # The tank is dead (This is also the default state when a new player connects to an in-progress game.)
+        dead = "dead"                   # The tank is dead (This is also the default state when a new player connects
+                                        #   to an in-progress game.)
 
     # String names for the commands the player can send
     class commands:

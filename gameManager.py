@@ -20,7 +20,7 @@ walls = list()
 #   elapsedTime:    The time elapsed in seconds since the last frame
 def gameLoop(elapsedTime):
     # Temporary, per-frame lists
-    players = list()        # A complete list of the clientIDs of players with tanks
+    players = list()        # A complete list of the clientIDs of players with alive tanks
     otherTanks = list()     # The list of stopped tanks and already moved tanks used by checkTankLocation()
 
     # Checks a tank's location against the map bounds, the otherTanks list, and the list of walls
@@ -71,28 +71,32 @@ def gameLoop(elapsedTime):
             player = wsServer.clients[clientID]
 
             if hasattr(player, "tank"):
-                # Execute any commands
-                if len(player.incoming) != 0:
-                    command = player.incoming.pop()
+                if player.tank.alive:
+                    # Execute any commands
+                    if len(player.incoming) != 0:
+                        command = player.incoming.pop()
 
-                    if command.action == config.serverSettings.commands.fire:
-                        if player.tank.canShoot(command.arrivalTime):
-                            player.tank.didShoot()
-                            shells.append(gameClasses.shell(clientID, player.tank, command.arg))
-                        else:
-                            wsServer.reportClientError(clientID, "Tank tried to shoot too quickly", False)
-                    elif command.action == config.serverSettings.commands.turn:
-                        player.tank.heading = command.arg
-                    elif command.action == config.serverSettings.commands.stop:
-                        player.tank.moving = False
-                    elif command.action == config.serverSettings.commands.go:
-                        player.tank.moving = True
+                        if command.action == config.serverSettings.commands.fire:
+                            if player.tank.canShoot(command.arrivalTime):
+                                player.tank.didShoot()
+                                shells.append(gameClasses.shell(clientID, player.tank, command.arg))
+                            else:
+                                wsServer.reportClientError(clientID, "Tank tried to shoot too quickly", False)
+                        elif command.action == config.serverSettings.commands.turn:
+                            player.tank.heading = command.arg
+                        elif command.action == config.serverSettings.commands.stop:
+                            player.tank.moving = False
+                        elif command.action == config.serverSettings.commands.go:
+                            player.tank.moving = True
 
-                    # If there's another queued command it'll be processed in the next frame
+                        # If there's another queued command it'll be processed in the next frame
 
-                # Add stopped tanks to the list of otherTanks
-                if not player.tank.moving:
-                    otherTanks.append(player.tank)
+                    # Add stopped tanks to the list of otherTanks
+                    if not player.tank.moving:
+                        otherTanks.append(player.tank)
+
+                    # Append the player's id to the list of players
+                    players.append(clientID)
             else:
                 # New player so initialize a tank
                 halfWidth = (config.gameSettings.map.width / 2) - config.gameSettings.tank.width
@@ -102,10 +106,7 @@ def gameLoop(elapsedTime):
                 # TODO: Prevent spawning in invalid locations
 
                 # TODO: Debugging code
-                player.tank.status = config.serverSettings.tankStatus.alive
-
-            # Append the player's id to the list of players
-            players.append(clientID)
+                player.tank.alive = True
 
     # Update positions for any moving tanks and check for collisions on all tanks
     for clientID in players:
@@ -122,9 +123,10 @@ def gameLoop(elapsedTime):
             if shell.shooterId != clientID:
                 if collisionDetector.hasCollided(tank.toPoly(), shell.toPoly(),
                                                  maxDist=collisionDetector.maxDistValues.tankShell):
-                    # TODO: Kill the tank instead of kicking them
-                    wsServer.reportClientError(clientID, "You were hit by the " +
-                                               config.serverSettings.tankNames[shell.shooterId], True)
+                    # Mark tank as dead, give the shooter a kill, and delete the shell
+                    tank.alive = False
+                    tank.moving = False
+                    wsServer.clients[shell.shooterId].tank.kills += 1
                     del shells[index]
                     break
 

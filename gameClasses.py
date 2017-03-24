@@ -15,14 +15,12 @@ class tank:
         self.y = y                  # Current y position
         self.heading = heading      # Current heading in radians from the +x axis
         self.moving = False         # Boolean for whether or not this tank is moving
+        self.alive = False          # Boolean for whether or not this tank is alive
 
         # The datetime of this tank's last shot
         self.__lastShotTime = datetime.datetime.now() - datetime.timedelta(seconds=config.gameSettings.tank.reloadTime)
 
-        # Current status for this tank
-        self.status = config.serverSettings.tankStatus.dead
-
-        self.kills = 0              # For the current round
+        self.kills = 0              # Kills in the current round
         self.wins = 0               # Rounds won
 
     # Checks if this tank can shoot

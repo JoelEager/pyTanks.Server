@@ -41,4 +41,4 @@ if __name__ == "__main__":
             print(usage.strip())
             sys.exit()
 
-    wsServer.runServer(gameManager.gameLoop, gameManager.updateClients)
+    wsServer.runServer(gameManager.startGame, gameManager.gameLoop, gameManager.updateClients)

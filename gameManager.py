@@ -15,6 +15,31 @@ import collisionDetector
 shells = list()
 walls = list()
 
+def startGame():
+    global shells, walls
+
+    shells = list()
+    walls = list()
+
+    # Spawn the tanks
+    halfWidth = (config.gameSettings.map.width / 2) - config.gameSettings.tank.width
+    halfHeight = (config.gameSettings.map.height / 2) - config.gameSettings.tank.height
+    for clientID in list(wsServer.clients.keys()):
+        if wsServer.clients[clientID].type == config.serverSettings.clientTypes.player:
+            tank = wsServer.clients[clientID].tank
+
+            tank.x = (config.gameSettings.map.width / 2) + randint(-halfWidth, halfWidth)
+            tank.y = (config.gameSettings.map.height / 2) + randint(-halfHeight, halfHeight)
+            tank.heading = 0
+            tank.moving = False
+            tank.alive = True
+            tank.kills = 0
+            # TODO: Prevent spawning in invalid locations
+
+    # TODO: Create walls here
+
+    wsServer.ongoingGame = True
+
 # Run the logic to maintain the game state and apply commands from player clients
 #   (Called once every frame by wsServer.py)
 #   elapsedTime:    The time elapsed in seconds since the last frame
@@ -70,43 +95,32 @@ def gameLoop(elapsedTime):
         if wsServer.clients[clientID].type == config.serverSettings.clientTypes.player:
             player = wsServer.clients[clientID]
 
-            if hasattr(player, "tank"):
-                if player.tank.alive:
-                    # Execute any commands
-                    if len(player.incoming) != 0:
-                        command = player.incoming.pop()
+            if player.tank.alive:
+                # Execute any commands
+                if len(player.incoming) != 0:
+                    command = player.incoming.pop()
 
-                        if command.action == config.serverSettings.commands.fire:
-                            if player.tank.canShoot(command.arrivalTime):
-                                player.tank.didShoot()
-                                shells.append(gameClasses.shell(clientID, player.tank, command.arg))
-                            else:
-                                wsServer.reportClientError(clientID, "Tank tried to shoot too quickly", False)
-                        elif command.action == config.serverSettings.commands.turn:
-                            player.tank.heading = command.arg
-                        elif command.action == config.serverSettings.commands.stop:
-                            player.tank.moving = False
-                        elif command.action == config.serverSettings.commands.go:
-                            player.tank.moving = True
+                    if command.action == config.serverSettings.commands.fire:
+                        if player.tank.canShoot(command.arrivalTime):
+                            player.tank.didShoot()
+                            shells.append(gameClasses.shell(clientID, player.tank, command.arg))
+                        else:
+                            wsServer.reportClientError(clientID, "Tank tried to shoot too quickly", False)
+                    elif command.action == config.serverSettings.commands.turn:
+                        player.tank.heading = command.arg
+                    elif command.action == config.serverSettings.commands.stop:
+                        player.tank.moving = False
+                    elif command.action == config.serverSettings.commands.go:
+                        player.tank.moving = True
 
-                        # If there's another queued command it'll be processed in the next frame
+                    # If there's another queued command it'll be processed in the next frame
 
-                    # Add stopped tanks to the list of otherTanks
-                    if not player.tank.moving:
-                        otherTanks.append(player.tank)
+                # Add stopped tanks to the list of otherTanks
+                if not player.tank.moving:
+                    otherTanks.append(player.tank)
 
-                    # Append the player's id to the list of players
-                    players.append(clientID)
-            else:
-                # New player so initialize a tank
-                halfWidth = (config.gameSettings.map.width / 2) - config.gameSettings.tank.width
-                halfHeight = (config.gameSettings.map.height / 2) - config.gameSettings.tank.height
-                player.tank = gameClasses.tank(halfWidth + randint(-halfWidth, halfWidth),
-                                               halfHeight + randint(-halfHeight, halfHeight), 0)
-                # TODO: Prevent spawning in invalid locations
-
-                # TODO: Debugging code
-                player.tank.alive = True
+                # Append the player's id to the list of players
+                players.append(clientID)
 
     # Update positions for any moving tanks and check for collisions on all tanks
     for clientID in players:
@@ -135,6 +149,12 @@ def gameLoop(elapsedTime):
             checkTankLocation(tank)
             otherTanks.append(tank)
 
+    if len(players) == 1:
+        # We have a winner!
+        wsServer.clients[players[0]].tank.wins += 1
+        wsServer.clients[players[0]].tank.alive = False
+        wsServer.ongoingGame = False
+
 # Send game state updates to clients
 #   (Called every time an update is due to be sent by wsServer.py)
 def updateClients():
@@ -153,6 +173,7 @@ def updateClients():
     # Build a gameState object
     class gameState:
         def __init__(self):
+            self.ongoingGame = wsServer.ongoingGame
             self.tanks = None
             self.shells = shells
             self.walls = walls
@@ -173,11 +194,11 @@ def updateClients():
         myTank = tanks[playerID]
         myTank.name = config.serverSettings.tankNames[playerID]
         currentGameState.myTank = myTank
-        
+
         # Generate a list of tanks containing all but the current tank and add it to currentGameState
         del tanks[playerID]
         currentGameState.tanks = list(tanks.values())
-        
+
         # Clean and send currentGameState to the current player
         wsServer.send(playerID, generateJSON(currentGameState, True))
 

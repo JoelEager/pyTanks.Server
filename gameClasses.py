@@ -10,10 +10,10 @@ import config
 class tank:
     # Constructor
     #   x, y, heading:  The initial position and heading for the tank
-    def __init__(self, x, y, heading):
-        self.x = x                  # Current x position
-        self.y = y                  # Current y position
-        self.heading = heading      # Current heading in radians from the +x axis
+    def __init__(self):
+        self.x = 0                  # Current x position
+        self.y = 0                  # Current y position
+        self.heading = 0            # Current heading in radians from the +x axis
         self.moving = False         # Boolean for whether or not this tank is moving
         self.alive = False          # Boolean for whether or not this tank is alive
 

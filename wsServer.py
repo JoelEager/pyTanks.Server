@@ -6,12 +6,14 @@ import json
 import numbers
 
 import config
+import gameClasses
 
 # The pyTanks server backend and asyncio code
 #   This takes care of managing the io for the clients and calling gameManager.py's callbacks at the set rate
 
-clients = dict()    # Each entry is one active client
-playerCount = 0     # Current number of connected players
+clients = dict()        # Each entry is one active client
+playerCount = 0         # Current number of connected players
+ongoingGame = False     # Is there a game in progress currently?
 
 # Used to store the info for an active client
 class client:
@@ -27,7 +29,7 @@ def logPrint(message, minLevel):
         print(message)
 
 # Appends a message to the outgoing queues for the indicated client(s)
-#   recipient must be a valid int clientID or a type in config.serverSettings.clientTypes
+#   recipient:  a valid int clientID or a type in config.serverSettings.clientTypes
 def send(recipients, message):
     if isinstance(recipients, int):
         clients[recipients].outgoing.append(message)
@@ -52,7 +54,7 @@ def reportClientError(clientID, errorMessage, isFatal):
 # Starts the sever and asyncio loop
 #    frameCallback:    The function to call every frame
 #    updateCallback:   The function to call every client game state update
-def runServer(frameCallback, updateCallback):
+def runServer(startGameCallback, frameCallback, updateCallback):
     # --- Internal websocket server functions: ---
 
     # Handles incoming messages from a player
@@ -111,7 +113,6 @@ def runServer(frameCallback, updateCallback):
             clientType = config.serverSettings.clientTypes.viewer
         elif path == config.serverSettings.apiPaths.player:
             if playerCount < config.serverSettings.maxPlayers:
-                playerCount += 1
                 clientType = config.serverSettings.clientTypes.player
             else:
                 # Too many players
@@ -140,9 +141,11 @@ def runServer(frameCallback, updateCallback):
 
         logPrint("Client (clientID: " + str(clientID) + ", type: " + clients[clientID].type + ") connected", 1)
 
-        # Start a playerReceiveTask if this is a player
+        # Do player-only setup if this is a player
         if clientType == config.serverSettings.clientTypes.player:
             asyncio.get_event_loop().create_task(playerReceiveTask(clientID))
+            clients[clientID].tank = gameClasses.tank()
+            playerCount += 1
 
         # Send queued messages to the client
         try:
@@ -201,7 +204,7 @@ def runServer(frameCallback, updateCallback):
             if delay < 1 / 250:
                 delay = 1 / 250
 
-            # Log FPS if server logging is enabled
+            # Log FPS if FPS logging is enabled
             if config.serverSettings.logLevel >= 1:
                 frameCount += 1
 
@@ -210,8 +213,15 @@ def runServer(frameCallback, updateCallback):
                     frameCount = 0
                     lastFSPLog = datetime.datetime.now()
 
-            # Run frameCallback each frame
-            frameCallback(frameDelta)
+            if not ongoingGame and playerCount >= config.serverSettings.minPlayers:
+                # There's no ongoing game but enough players have joined so start a new game
+                updateCallback()    # Ensure that all clients have at least one update with ongoingGame = False
+                startGameCallback()
+                updateCallback()    # Get the new update out ASAP
+
+            if ongoingGame:
+                # There's an ongoing game so run frameCallback
+                frameCallback(frameDelta)
 
             # Run updateCallback at the rate set in config.py
             timeSinceLastUpdate += frameDelta

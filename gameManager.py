@@ -21,22 +21,56 @@ def startGame():
     shells = list()
     walls = list()
 
-    # TODO: Create walls here
+    # Create the walls
+    for count in range(0, randint(5, 10)):
+        isValidLocation = False
+        wall = None
+        while not isValidLocation:
+            wall = gameClasses.wall()
+            isValidLocation = True
+
+            # Check for overlap with the other walls
+            for otherWall in walls:
+                if collisionDetector.hasCollided(wall.toPoly(), otherWall.toPoly(
+                        margin=config.game.wall.placementPadding)):
+                    isValidLocation = False
+                    break
+
+        walls.append(wall)
 
     # Spawn the tanks
     halfWidth = (config.game.map.width / 2) - config.game.tank.width
     halfHeight = (config.game.map.height / 2) - config.game.tank.height
+    tanksSpawned = list()
     for clientID in list(wsServer.clients.keys()):
         if wsServer.clients[clientID].type == config.server.clientTypes.player:
             tank = wsServer.clients[clientID].tank
 
-            tank.x = (config.game.map.width / 2) + randint(-halfWidth, halfWidth)
-            tank.y = (config.game.map.height / 2) + randint(-halfHeight, halfHeight)
             tank.heading = 0
             tank.moving = False
             tank.alive = True
             tank.kills = 0
-            # TODO: Prevent spawning in invalid locations
+
+            isValidLocation = False
+            while not isValidLocation:
+                tank.x = (config.game.map.width / 2) + randint(-halfWidth, halfWidth)
+                tank.y = (config.game.map.height / 2) + randint(-halfHeight, halfHeight)
+                isValidLocation = True
+
+                # Check for collisions with the walls
+                for wall in walls:
+                    if collisionDetector.hasCollided(tank.toPoly(), wall.toPoly()):
+                        isValidLocation = False
+                        break
+
+                if isValidLocation:
+                    # Check for collisions with the other tanks
+                    for otherTank in tanksSpawned:
+                        if collisionDetector.hasCollided(tank.toPoly(), otherTank.toPoly()):
+                            isValidLocation = False
+                            break
+
+            tanksSpawned.append(tank)
 
     wsServer.ongoingGame = True
 
@@ -70,12 +104,10 @@ def gameLoop(elapsedTime):
                 return
 
         # Check for collisions with walls
-        #for wall in walls:
-        #    wallTank = collisionDetector.getMaxDist(tankToCheck, wall)
-        #    if collisionDetector.hasCollided(player.tank.toPoly(), wall.toPoly(), maxDist=wallTank):
-        #        didCollide()
-        #        return
-        # TODO: Uncomment and test once walls are implemented
+        for wall in walls:
+            if collisionDetector.hasCollided(tankToCheck.toPoly(), wall.toPoly()):
+                didCollide()
+                return
 
     # Move the shells and check for collisions with the map bounds
     outOfBoundsShells = list()
@@ -86,6 +118,13 @@ def gameLoop(elapsedTime):
         if (shells[index].x > config.game.map.width or shells[index].x < 0 or
                 shells[index].y > config.game.map.height or shells[index].y < 0):
             outOfBoundsShells.insert(0, index)
+            continue
+
+        # Discard any shells that hit a wall
+        for wall in walls:
+            if collisionDetector.hasCollided(shells[index].toPoly(), wall.toPoly()):
+                outOfBoundsShells.insert(0, index)
+                break
 
     for index in outOfBoundsShells:
         del shells[index]

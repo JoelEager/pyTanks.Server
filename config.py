@@ -18,8 +18,8 @@ class game:
         width = 1                       # In pixels
 
     class wall:
-        shortSideBounds = [15, 50]      # Min and max in pixels
-        longSideBounds = [50, 100]      # Min and max in pixels
+        shortSideBounds = [15, 30]      # Min and max in pixels
+        longSideBounds = [50, 200]      # Min and max in pixels
         placementPadding = 15           # Min padding between a wall and the map bounds
 
 class server:

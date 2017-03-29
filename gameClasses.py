@@ -11,8 +11,8 @@ class tank:
     # Constructor
     #   x, y, heading:  The initial position and heading for the tank
     def __init__(self):
-        self.x = 0                  # Current x position
-        self.y = 0                  # Current y position
+        self.x = -100               # Current x position
+        self.y = -100               # Current y position
         self.heading = 0            # Current heading in radians from the +x axis
         self.moving = False         # Boolean for whether or not this tank is moving
         self.alive = False          # Boolean for whether or not this tank is alive

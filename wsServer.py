@@ -19,17 +19,17 @@ ongoingGame = False     # Is there a game in progress currently?
 class client:
     def __init__(self, clientSocket, clientType):
         self.socket = clientSocket  # The client's websocket
-        self.type = clientType      # The type of client (valid types defined in config.serverSettings.clientTypes)
+        self.type = clientType      # The type of client (valid types defined in config.server.clientTypes)
         self.outgoing = list()      # The outgoing message queue for this client
         self.incoming = list()      # The incoming message queue for this client
 
 # Handles logging of events
 def logPrint(message, minLevel):
-    if config.serverSettings.logLevel >= minLevel:
+    if config.server.logLevel >= minLevel:
         print(message)
 
 # Appends a message to the outgoing queues for the indicated client(s)
-#   recipient:  a valid int clientID or a type in config.serverSettings.clientTypes
+#   recipient:  a valid int clientID or a type in config.server.clientTypes
 def send(recipients, message):
     if isinstance(recipients, int):
         clients[recipients].outgoing.append(message)
@@ -81,18 +81,17 @@ def runServer(startGameCallback, frameCallback, updateCallback):
                     raise ValueError("Invalid JSON")
 
                 # All commands must have a valid action
-                if message.get("action") not in config.serverSettings.commands.validCommands:
+                if message.get("action") not in config.server.commands.validCommands:
                     raise ValueError("Missing or invalid action")
 
                 # Check for a valid arg if it's required
-                if message["action"] == config.serverSettings.commands.turn or \
-                        message["action"] == config.serverSettings.commands.fire:
+                if message["action"] == config.server.commands.turn or message["action"] == config.server.commands.fire:
                     if not isinstance(message.get("arg"), numbers.Number):
                         raise ValueError("Missing or invalid arg")
 
                 # Build and append the command obj
                 commandObj = command()
-                if commandObj.action == config.serverSettings.commands.fire:
+                if commandObj.action == config.server.commands.fire:
                     command.arrivalTime = datetime.datetime.now()
                 clients[clientID].incoming.append(commandObj)
         except websockets.exceptions.ConnectionClosed:
@@ -109,11 +108,11 @@ def runServer(startGameCallback, frameCallback, updateCallback):
         global playerCount
 
         # Check the client's connection path and set API type
-        if path == config.serverSettings.apiPaths.viewer:
-            clientType = config.serverSettings.clientTypes.viewer
-        elif path == config.serverSettings.apiPaths.player:
-            if playerCount < config.serverSettings.maxPlayers:
-                clientType = config.serverSettings.clientTypes.player
+        if path == config.server.apiPaths.viewer:
+            clientType = config.server.clientTypes.viewer
+        elif path == config.server.apiPaths.player:
+            if playerCount < config.server.maxPlayers:
+                clientType = config.server.clientTypes.player
             else:
                 # Too many players
                 logPrint("A player tried to connect but the game is full - connection refused", 1)
@@ -127,9 +126,9 @@ def runServer(startGameCallback, frameCallback, updateCallback):
 
         # Generate a clientID
         while True:
-            if clientType == config.serverSettings.clientTypes.player:
+            if clientType == config.server.clientTypes.player:
                 # If it's a player the id needs to map to a name in the list of tank names
-                clientID = random.randint(0, len(config.serverSettings.tankNames) - 1)
+                clientID = random.randint(0, len(config.server.tankNames) - 1)
             else:
                 clientID = random.randint(1000, 9999)
 
@@ -142,7 +141,7 @@ def runServer(startGameCallback, frameCallback, updateCallback):
         logPrint("Client (clientID: " + str(clientID) + ", type: " + clients[clientID].type + ") connected", 1)
 
         # Do player-only setup if this is a player
-        if clientType == config.serverSettings.clientTypes.player:
+        if clientType == config.server.clientTypes.player:
             asyncio.get_event_loop().create_task(playerReceiveTask(clientID))
             clients[clientID].tank = gameClasses.tank()
             playerCount += 1
@@ -164,7 +163,7 @@ def runServer(startGameCallback, frameCallback, updateCallback):
 
         # Clean up data for this client
         del clients[clientID]
-        if clientType == config.serverSettings.clientTypes.player:
+        if clientType == config.server.clientTypes.player:
             playerCount -= 1
 
         logPrint("handler for " + str(clientID) + " exited", 1)
@@ -175,12 +174,12 @@ def runServer(startGameCallback, frameCallback, updateCallback):
     async def frameLoop():
         # For frame rate targeting
         lastFrameTime = datetime.datetime.now()
-        baseDelay = 1 / config.serverSettings.framesPerSecond
+        baseDelay = 1 / config.server.framesPerSecond
         delay = baseDelay
         deltas = list()
 
         # For timing game state updates
-        timeSinceLastUpdate = 1 / config.serverSettings.updatesPerSecond
+        timeSinceLastUpdate = 1 / config.server.updatesPerSecond
 
         # For calculating the FPS for logging
         lastFSPLog = datetime.datetime.now()
@@ -196,16 +195,16 @@ def runServer(startGameCallback, frameCallback, updateCallback):
 
             # Adjust delay to try to keep the actual frame rate within 5% of the target
             avgDelta = sum(deltas) / float(len(deltas))
-            if avgDelta * config.serverSettings.framesPerSecond < 0.95:      # Too fast
+            if avgDelta * config.server.framesPerSecond < 0.95:      # Too fast
                 delay += baseDelay * 0.01
-            elif avgDelta * config.serverSettings.framesPerSecond > 1.05:    # Too slow
+            elif avgDelta * config.server.framesPerSecond > 1.05:    # Too slow
                 delay -= baseDelay * 0.01
 
             if delay < 1 / 250:
                 delay = 1 / 250
 
             # Log FPS if FPS logging is enabled
-            if config.serverSettings.logLevel >= 1:
+            if config.server.logLevel >= 1:
                 frameCount += 1
 
                 if (datetime.datetime.now() - lastFSPLog).total_seconds() >= 5:
@@ -213,7 +212,7 @@ def runServer(startGameCallback, frameCallback, updateCallback):
                     frameCount = 0
                     lastFSPLog = datetime.datetime.now()
 
-            if not ongoingGame and playerCount >= config.serverSettings.minPlayers:
+            if not ongoingGame and playerCount >= config.server.minPlayers:
                 # There's no ongoing game but enough players have joined so start a new game
                 updateCallback()    # Ensure that all clients have at least one update with ongoingGame = False
                 startGameCallback()
@@ -225,7 +224,7 @@ def runServer(startGameCallback, frameCallback, updateCallback):
 
             # Run updateCallback at the rate set in config.py
             timeSinceLastUpdate += frameDelta
-            if timeSinceLastUpdate >= 1 / config.serverSettings.updatesPerSecond:
+            if timeSinceLastUpdate >= 1 / config.server.updatesPerSecond:
                 timeSinceLastUpdate = 0
                 updateCallback()
 
@@ -235,7 +234,7 @@ def runServer(startGameCallback, frameCallback, updateCallback):
     # --- Websocket server startup code: ---
 
     # Configure websocket server logging
-    if config.serverSettings.logLevel >= 3:
+    if config.server.logLevel >= 3:
         import logging
         logger = logging.getLogger("websockets")
         logger.setLevel(logging.DEBUG)
@@ -244,7 +243,7 @@ def runServer(startGameCallback, frameCallback, updateCallback):
 
     # Start the sever and asyncio loop
     try:
-        ipAndPort = config.serverSettings.ipAndPort.split(":")
+        ipAndPort = config.server.ipAndPort.split(":")
         start_server = websockets.serve(clientHandler, ipAndPort[0], ipAndPort[1])
         asyncio.get_event_loop().run_until_complete(start_server)
         logPrint("Server started", 1)

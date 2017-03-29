@@ -18,7 +18,7 @@ class tank:
         self.alive = False          # Boolean for whether or not this tank is alive
 
         # The datetime of this tank's last shot
-        self.__lastShotTime = datetime.datetime.now() - datetime.timedelta(seconds=config.gameSettings.tank.reloadTime)
+        self.__lastShotTime = datetime.datetime.now() - datetime.timedelta(seconds=config.game.tank.reloadTime)
 
         self.kills = 0              # Kills in the current round
         self.wins = 0               # Rounds won
@@ -28,8 +28,8 @@ class tank:
     #   returns: True if the tank can shoot, False if not
     def canShoot(self, timeOfShot):
         marginOfError = 0.2     # Used to account for network issues throwing off the timing
-        return datetime.timedelta(seconds=config.gameSettings.tank.reloadTime - marginOfError) <= \
-            timeOfShot - self.__lastShotTime
+        return datetime.timedelta(seconds=config.game.tank.reloadTime - marginOfError) <= timeOfShot - \
+                                                                                          self.__lastShotTime
     
     # Called whenever a tank shoots so its __lastShotTime can be updated
     def didShoot(self):
@@ -57,8 +57,8 @@ class tank:
     
     # Returns the tank's polygon as a list of points as tuples
     def toPoly(self):
-        halfWidth = config.gameSettings.tank.width / 2
-        halfHeight = config.gameSettings.tank.height / 2
+        halfWidth = config.game.tank.width / 2
+        halfHeight = config.game.tank.height / 2
         return [(self.x - halfWidth, self.y - halfHeight), (self.x - halfWidth, self.y + halfHeight), 
                 (self.x + halfWidth, self.y - halfHeight), (self.x + halfWidth, self.y + halfHeight)]
 
@@ -79,8 +79,8 @@ class shell:
     
     # Returns the shell's polygon as a list of points as tuples
     def toPoly(self):
-        halfWidth = config.gameSettings.shell.width / 2
-        halfHeight = config.gameSettings.shell.height / 2
+        halfWidth = config.game.shell.width / 2
+        halfHeight = config.game.shell.height / 2
         return [(self.x - halfWidth, self.y - halfHeight), (self.x - halfWidth, self.y + halfHeight), 
                 (self.x + halfWidth, self.y - halfHeight), (self.x + halfWidth, self.y + halfHeight)]
 

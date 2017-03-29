@@ -91,5 +91,5 @@ def getMaxDist(rect1, rect2):
 
 # Pre-calculated maxDist values for use when checking collisions between two objects with sizes set by config.py
 class maxDistValues:
-    tankShell = getMaxDist(config.gameSettings.tank, config.gameSettings.shell)
-    tankTank = getMaxDist(config.gameSettings.tank, config.gameSettings.tank)
+    tankShell = getMaxDist(config.game.tank, config.game.shell)
+    tankTank = getMaxDist(config.game.tank, config.game.tank)

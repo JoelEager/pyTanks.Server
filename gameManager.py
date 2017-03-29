@@ -21,22 +21,22 @@ def startGame():
     shells = list()
     walls = list()
 
+    # TODO: Create walls here
+
     # Spawn the tanks
-    halfWidth = (config.gameSettings.map.width / 2) - config.gameSettings.tank.width
-    halfHeight = (config.gameSettings.map.height / 2) - config.gameSettings.tank.height
+    halfWidth = (config.game.map.width / 2) - config.game.tank.width
+    halfHeight = (config.game.map.height / 2) - config.game.tank.height
     for clientID in list(wsServer.clients.keys()):
-        if wsServer.clients[clientID].type == config.serverSettings.clientTypes.player:
+        if wsServer.clients[clientID].type == config.server.clientTypes.player:
             tank = wsServer.clients[clientID].tank
 
-            tank.x = (config.gameSettings.map.width / 2) + randint(-halfWidth, halfWidth)
-            tank.y = (config.gameSettings.map.height / 2) + randint(-halfHeight, halfHeight)
+            tank.x = (config.game.map.width / 2) + randint(-halfWidth, halfWidth)
+            tank.y = (config.game.map.height / 2) + randint(-halfHeight, halfHeight)
             tank.heading = 0
             tank.moving = False
             tank.alive = True
             tank.kills = 0
             # TODO: Prevent spawning in invalid locations
-
-    # TODO: Create walls here
 
     wsServer.ongoingGame = True
 
@@ -52,12 +52,12 @@ def gameLoop(elapsedTime):
     #   If the tank has collided with any of those it is moved back and the moving property is set to False
     def checkTankLocation(tankToCheck):
         def didCollide():
-            tankToCheck.move(-config.gameSettings.tank.speed * elapsedTime)
+            tankToCheck.move(-config.game.tank.speed * elapsedTime)
             tankToCheck.moving = False
 
         # Check for collisions with map bounds
         for point in tankToCheck.toPoly():
-            if (point[0] > config.gameSettings.map.width or point[0] < 0 or point[1] > config.gameSettings.map.height
+            if (point[0] > config.game.map.width or point[0] < 0 or point[1] > config.game.map.height
                     or point[1] < 0):
                 didCollide()
                 return
@@ -80,11 +80,11 @@ def gameLoop(elapsedTime):
     # Move the shells and check for collisions with the map bounds
     outOfBoundsShells = list()
     for index in range(0, len(shells)):
-        shells[index].move(config.gameSettings.shell.speed * elapsedTime)
+        shells[index].move(config.game.shell.speed * elapsedTime)
 
         # Discard any shells that fly off the map
-        if (shells[index].x > config.gameSettings.map.width or shells[index].x < 0 or
-                shells[index].y > config.gameSettings.map.height or shells[index].y < 0):
+        if (shells[index].x > config.game.map.width or shells[index].x < 0 or
+                shells[index].y > config.game.map.height or shells[index].y < 0):
             outOfBoundsShells.insert(0, index)
 
     for index in outOfBoundsShells:
@@ -92,7 +92,7 @@ def gameLoop(elapsedTime):
 
     # Fill the per-frame lists, execute any commands, and create tanks for new players
     for clientID in list(wsServer.clients.keys()):
-        if wsServer.clients[clientID].type == config.serverSettings.clientTypes.player:
+        if wsServer.clients[clientID].type == config.server.clientTypes.player:
             player = wsServer.clients[clientID]
 
             if player.tank.alive:
@@ -100,17 +100,17 @@ def gameLoop(elapsedTime):
                 if len(player.incoming) != 0:
                     command = player.incoming.pop()
 
-                    if command.action == config.serverSettings.commands.fire:
+                    if command.action == config.server.commands.fire:
                         if player.tank.canShoot(command.arrivalTime):
                             player.tank.didShoot()
                             shells.append(gameClasses.shell(clientID, player.tank, command.arg))
                         else:
                             wsServer.reportClientError(clientID, "Tank tried to shoot too quickly", False)
-                    elif command.action == config.serverSettings.commands.turn:
+                    elif command.action == config.server.commands.turn:
                         player.tank.heading = command.arg
-                    elif command.action == config.serverSettings.commands.stop:
+                    elif command.action == config.server.commands.stop:
                         player.tank.moving = False
-                    elif command.action == config.serverSettings.commands.go:
+                    elif command.action == config.server.commands.go:
                         player.tank.moving = True
 
                     # If there's another queued command it'll be processed in the next frame
@@ -128,7 +128,7 @@ def gameLoop(elapsedTime):
 
         # Move the tank if it is moving
         if tank.moving:
-            tank.move(config.gameSettings.tank.speed * elapsedTime)
+            tank.move(config.game.tank.speed * elapsedTime)
 
         # Check if the tank is hit
         for index in range(0, len(shells)):
@@ -183,7 +183,7 @@ def updateClients():
     # Build the tanks dict
     tanks = dict()
     for clientID in wsServer.clients:
-        if wsServer.clients[clientID].type == config.serverSettings.clientTypes.player:
+        if wsServer.clients[clientID].type == config.server.clientTypes.player:
             aTank = copy.copy(wsServer.clients[clientID].tank)
             tanks[clientID] = aTank
 
@@ -192,7 +192,7 @@ def updateClients():
     for playerID in tankIDs:
         # Append the current tank's data and name to currentGameState
         myTank = tanks[playerID]
-        myTank.name = config.serverSettings.tankNames[playerID]
+        myTank.name = config.server.tankNames[playerID]
         currentGameState.myTank = myTank
 
         # Generate a list of tanks containing all but the current tank and add it to currentGameState
@@ -209,6 +209,6 @@ def updateClients():
 
     # Send complete data to the viewers
     for playerID in tankIDs:
-        tanks[playerID].name = config.serverSettings.tankNames[playerID]
+        tanks[playerID].name = config.server.tankNames[playerID]
     currentGameState.tanks = list(tanks.values())
-    wsServer.send(config.serverSettings.clientTypes.viewer, generateJSON(currentGameState, False))
+    wsServer.send(config.server.clientTypes.viewer, generateJSON(currentGameState, False))

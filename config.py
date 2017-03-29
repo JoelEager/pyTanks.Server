@@ -1,6 +1,6 @@
 # Configuration settings for both the game and the server
 
-class gameSettings:
+class game:
     class map:
         # (0, 0) is the upper left corner with +x going to the right and +y going down
         width = 500                     # In pixels
@@ -17,7 +17,12 @@ class gameSettings:
         height = 1                      # In pixels
         width = 1                       # In pixels
 
-class serverSettings:
+    class wall:
+        shortSideBounds = [15, 50]      # Min and max in pixels
+        longSideBounds = [50, 100]      # Min and max in pixels
+        placementPadding = 15           # Min padding between a wall and the map bounds
+
+class server:
     # Both logLevel and ipAndPort can be overridden by command line args so the value here is only the default
     ipAndPort = "localhost:9042"        # The server's IP address and port
     logLevel = 1                        # Level of debugging logging for the websocket server

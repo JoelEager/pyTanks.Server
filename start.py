@@ -30,13 +30,13 @@ if __name__ == "__main__":
             continue
         elif arg.startswith("log="):
             try:
-                config.serverSettings.logLevel = int(arg[-1:])
+                config.server.logLevel = int(arg[-1:])
             except ValueError:
                 print("Invalid log level")
                 print(usage.strip())
                 sys.exit()
         elif ":" in arg:
-            config.serverSettings.ipAndPort = arg
+            config.server.ipAndPort = arg
         else:
             print(usage.strip())
             sys.exit()

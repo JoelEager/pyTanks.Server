@@ -39,7 +39,7 @@ class tank:
     # Moves the tank the given distance along its current heading
     def move(self, distance):
         self.x += math.cos(self.heading) * distance
-        self.y += math.sin(self.heading) * distance
+        self.y -= math.sin(self.heading) * distance
 
     # Returns a dict of the tank's data
     #   doClean:    True/False to indicate if the dict should be cleaned for sending to players
@@ -76,7 +76,7 @@ class shell:
     # Moves the shell the given distance along its heading
     def move(self, distance):
         self.x += math.cos(self.heading) * distance
-        self.y += math.sin(self.heading) * distance
+        self.y -= math.sin(self.heading) * distance
     
     # Returns the shell's polygon as a list of points as tuples
     def toPoly(self):

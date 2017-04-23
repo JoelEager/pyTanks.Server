@@ -1,12 +1,11 @@
 import sys
 
 import config
-import wsServer
-import gameManager
+from gameLogic import gameManager
+from serverLogic import wsServer
 
 # Main/startup script of the pyTanks server
-#   This script checks any command line args provided, applies them to config.py, and then starts wsServer.py with
-#   references to the gameLoop and updateClients functions in gameManager.py.
+#   This script checks any command line args provided, applies them to config.py, and then starts wsServer.py.
 #
 #   Requirements:
 #       Python 3.5 or newer
@@ -41,4 +40,4 @@ if __name__ == "__main__":
             print(usage.strip())
             sys.exit()
 
-    wsServer.runServer(gameManager.startGame, gameManager.gameLoop, gameManager.updateClients)
+    wsServer.runServer()

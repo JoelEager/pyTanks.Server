@@ -19,8 +19,18 @@ Base functionality is in place but some of the important stuff is still a work i
 ```python start.py```
 
 The pyTanks server uses the settings found in config.py to control how the server works. Those values can be changed directly or be overridden by appending one or more of these command line args:
-- log=n - Overrides the default logging level. (Replace n with 0 for minimal logging, 1 for FPS and connect/disconnect logs, 2 for all server status logs, or 3 for all websocket logs.)
+- log=n - Overrides the default logging level.
 - ip:port - Overrides the ip and port used to host the server.
+
+Where the log level is one of:
+- 0 for no logging
+- 1 for connect/disconnect and new game
+- 2 for server status and client errors
+- 3 for FPS
+- 4 for server IO
+- 5 for verbose websocket logs
+
+(All log events of a log level equal to or less than the set log level will be printed.)
 
 #### Licensing note:
 The contents of collisionDetector.py are based of off a Python implementation of Separating Axis Theorem created by Juan Antonio Aldea Armenteros. The original version is available [here](https://github.com/JuantAldea/Separating-Axis-Theorem/). That code is under the GNU General Public License, but I (Joel Eager) have received written permission to distribute this modified version under the MIT license.

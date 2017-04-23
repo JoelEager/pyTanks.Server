@@ -65,7 +65,7 @@ async def gameClock():
             frameCount += 1
 
             if (datetime.datetime.now() - lastFSPLog).total_seconds() >= 5:
-                logPrint("FPS: " + str(frameCount / 5), 1)
+                logPrint("FPS: " + str(frameCount / 5), 3)
                 frameCount = 0
                 lastFSPLog = datetime.datetime.now()
 

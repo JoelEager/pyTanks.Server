@@ -4,6 +4,7 @@ import config
 from . import collisionDetector, gameData
 import dataModels
 from serverLogic import serverData
+from serverLogic.logging import logPrint
 
 # The logic for running the game and sending updates to clients
 
@@ -64,6 +65,7 @@ def startGame():
 
     # Start the game
     gameData.ongoingGame = True
+    logPrint("New game started with " + str(gameData.playerCount) + " players", 1)
 
 # Runs the logic to maintain the game state and applies commands from players
 #   (Called once every frame by gameClock.py)

@@ -19,8 +19,7 @@ Usage:
 
     The pyTanks server uses the settings found in config.py to control how the server works. Those values can be
     changed directly or be overridden by appending one or more of these command line args:
-        log=n - Overrides the default logging level. (Replace n with 0 for minimal logging, 1 for FPS and
-                        connect/disconnect logs, 2 for all server status logs, or 3 for all websocket logs.)
+        log=n - Overrides the default logging level. (See the usage section of the readme.)
         ip:port - Overrides the ip and port used to host the server."""
 
 if __name__ == "__main__":

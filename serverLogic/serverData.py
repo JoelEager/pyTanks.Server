@@ -14,7 +14,7 @@ def send(recipients, message):
             if clients[clientID].type == recipients:
                 clients[clientID].outgoing.append(message)
 
-    logPrint("Message added to send queue for " + str(recipients) + ": " + message, 2)
+    logPrint("Message added to send queue for " + str(recipients) + ": " + message, 4)
 
 # Appends an error message to a misbehaving client's outing queue
 #   If isFatal is True the client is also kicked
@@ -25,4 +25,4 @@ def reportClientError(clientID, errorMessage, isFatal):
         errorMessage = "[Warning] " + errorMessage
 
     clients[clientID].outgoing.append(errorMessage)
-    logPrint("Error sent to client " + str(clientID) + ": " + errorMessage, 1)
+    logPrint("Error sent to client " + str(clientID) + ": " + errorMessage, 2)

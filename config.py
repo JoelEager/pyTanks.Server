@@ -25,8 +25,7 @@ class game:
 class server:
     # Both logLevel and ipAndPort can be overridden by command line args so the value here is only the default
     ipAndPort = "localhost:9042"        # The server's IP address and port
-    logLevel = 1                        # Level of debugging logging for the websocket server
-    # (0 for minimal, 1 for FPS and connect/disconnect, 2 for all server status logs, 3 for all websocket logs)
+    logLevel = 3                        # The amount of server-side logging (See the usage section of the readme)
 
     framesPerSecond = 60                # The target frame rate for the frameCallback function
     updatesPerSecond = 10               # How many game state updates should be sent to clients each second

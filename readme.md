@@ -8,9 +8,9 @@ pyTanks is a project in three modules:
 
 #### Requirements:
 - Python 3.5 or newer
-- websockets package (pip install websockets)
+- [websockets 3.3](https://github.com/aaugustin/websockets) (pip install websockets)
 
-#### Note: pyTanks is currently in an "alpha" state. Feel free to play around with it and offer feedback but don't expect the code to be feature-complete or fully documented.
+**Note: pyTanks is currently in an "alpha" state. Feel free to play around with it and offer feedback but don't expect the code to be feature-complete or fully documented.**
 
 ## Server
 Base functionality is in place but some of the important stuff is still a work in progress.

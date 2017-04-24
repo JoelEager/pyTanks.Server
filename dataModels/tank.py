@@ -19,12 +19,18 @@ class tank:
         self.kills = 0          # Kills in the current round
         self.wins = 0           # Rounds won
 
+    # Resets the tank's per-game variables (other than position)
+    def spawn(self):
+        self.heading = 0
+        self.moving = False
+        self.alive = True
+        self.__lastShotTime = datetime.datetime.now() - datetime.timedelta(seconds=config.game.tank.reloadTime)
+        self.kills = 0
+
     # Used to cap rate of fire
     #   returns: True if the tank can shoot, False if not
-    def canShoot(self, timeOfShot):
-        marginOfError = 0.2  # Used to account for network issues throwing off the timing
-        return datetime.timedelta(seconds=config.game.tank.reloadTime - marginOfError) <= \
-            timeOfShot - self.__lastShotTime
+    def canShoot(self):
+        return datetime.timedelta(seconds=config.game.tank.reloadTime) <= datetime.datetime.now() - self.__lastShotTime
 
     # Called whenever a tank shoots so its lastShotTime can be updated
     def didShoot(self):

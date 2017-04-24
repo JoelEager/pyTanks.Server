@@ -28,7 +28,3 @@ class command:
                 raise ValueError("Missing or invalid arg")
 
             self.arg = message["arg"]
-
-            # Add arrivalTime to fire commands
-            if message["action"] == config.server.commands.fire:
-                self.arrivalTime = datetime.datetime.now()

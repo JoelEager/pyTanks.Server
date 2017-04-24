@@ -51,6 +51,7 @@ def updateClients():
         # Append the current tank's data and name to currentGameState
         myTank = tanks[playerID]
         myTank.name = config.server.tankNames[playerID]
+        myTank.canShoot = myTank.canShoot()
         currentGameState.myTank = myTank
 
         # Generate a list of tanks containing all but the current tank and add it to currentGameState

@@ -37,11 +37,7 @@ def startGame():
     for clientID in list(serverData.clients.keys()):
         if serverData.clients[clientID].isPlayer():
             tank = serverData.clients[clientID].tank
-
-            tank.heading = 0
-            tank.moving = False
-            tank.alive = True
-            tank.kills = 0
+            tank.spawn()
 
             isValidLocation = False
             while not isValidLocation:
@@ -133,11 +129,9 @@ def gameTick(elapsedTime):
                     command = player.incoming.pop()
 
                     if command.action == config.server.commands.fire:
-                        if player.tank.canShoot(command.arrivalTime):
+                        if player.tank.canShoot():
                             player.tank.didShoot()
                             gameData.shells.append(dataModels.shell(clientID, player.tank, command.arg))
-                        else:
-                            serverData.reportClientError(clientID, "Tank tried to shoot too quickly", False)
                     elif command.action == config.server.commands.turn:
                         player.tank.heading = command.arg
                     elif command.action == config.server.commands.stop:

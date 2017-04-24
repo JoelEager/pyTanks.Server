@@ -26,7 +26,7 @@ async def playerReceiveTask(clientID):
         # Bad command so send error to client and disconnect
         serverData.reportClientError(clientID, e.args[0], True)
 
-    logPrint("playerReceiveTask for " + str(clientID) + " exited", 2)
+    logPrint("playerReceiveTask for client #" + str(clientID) + " exited", 2)
 
 # Handles sending queued messages to a client
 async def clientSendTask(clientID):
@@ -44,7 +44,7 @@ async def clientSendTask(clientID):
     except websockets.exceptions.ConnectionClosed:
         pass
 
-    logPrint("clientSendTask for " + str(clientID) + " exited", 2)
+    logPrint("clientSendTask for client #" + str(clientID) + " exited", 2)
 
 # Registers a client and starts the io task(s) for it
 async def clientHandler(websocket, path):
@@ -94,7 +94,7 @@ async def clientHandler(websocket, path):
     if clientType == config.server.clientTypes.player:
         gameData.playerCount -= 1
 
-    logPrint("handler for " + str(clientID) + " exited (client disconnected)", 1)
+    logPrint("handler for client #" + str(clientID) + " exited (connection closed)", 1)
     # (When this function returns the socket dies)
 
 # Starts the sever and asyncio loop

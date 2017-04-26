@@ -13,7 +13,7 @@ from gameLogic import gameData
 #   This takes care of managing the io for the clients and spinning up gameClock.py
 
 # Handles incoming messages from a player
-async def playerReceiveTask(clientID):
+async def __playerReceiveTask(clientID):
     try:
         while clientID in serverData.clients:
             message = await serverData.clients[clientID].socket.recv()
@@ -29,7 +29,7 @@ async def playerReceiveTask(clientID):
     logPrint("playerReceiveTask for client #" + str(clientID) + " exited", 2)
 
 # Handles sending queued messages to a client
-async def clientSendTask(clientID):
+async def __clientSendTask(clientID):
     try:
         while clientID in serverData.clients:
             if len(serverData.clients[clientID].outgoing) != 0:
@@ -47,7 +47,7 @@ async def clientSendTask(clientID):
     logPrint("clientSendTask for client #" + str(clientID) + " exited", 2)
 
 # Registers a client and starts the io task(s) for it
-async def clientHandler(websocket, path):
+async def __clientHandler(websocket, path):
     # Check the client's connection path and set API type
     if path == config.server.apiPaths.viewer:
         clientType = config.server.clientTypes.viewer
@@ -84,9 +84,9 @@ async def clientHandler(websocket, path):
     # Spin up tasks
     if serverData.clients[clientID].isPlayer():
         gameData.playerCount += 1
-        asyncio.get_event_loop().create_task(playerReceiveTask(clientID))
+        asyncio.get_event_loop().create_task(__playerReceiveTask(clientID))
 
-    await clientSendTask(clientID)
+    await __clientSendTask(clientID)
     # (When clientSendTask returns the client's connection has ended or they have been marked for disconnection.)
 
     # Clean up data for this client
@@ -110,7 +110,7 @@ def runServer():
     # Start the sever and asyncio loop
     try:
         ipAndPort = config.server.ipAndPort.split(":")
-        start_server = websockets.serve(clientHandler, ipAndPort[0], ipAndPort[1])
+        start_server = websockets.serve(__clientHandler, ipAndPort[0], ipAndPort[1])
         asyncio.get_event_loop().run_until_complete(start_server)
         logPrint("Server started", 1)
 

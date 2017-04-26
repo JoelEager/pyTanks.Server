@@ -8,11 +8,11 @@ from . import gameData, gameManager
 # The asyncio code that maintains a consistent frame rate and runs the on-frame logic
 
 # For timing game state updates
-timeSinceLastUpdate = 1 / config.server.updatesPerSecond
+__timeSinceLastUpdate = 1 / config.server.updatesPerSecond
 
 # Runs gameManager's and gameData's functions at the rates set in config.py
-def onTick(frameDelta):
-    global timeSinceLastUpdate
+def __onTick(frameDelta):
+    global __timeSinceLastUpdate
 
     if not gameData.ongoingGame and gameData.playerCount >= config.server.minPlayers:
         # There's no ongoing game but enough players have joined so start a new game
@@ -25,9 +25,9 @@ def onTick(frameDelta):
         gameManager.gameTick(frameDelta)
 
     # Run updateClients at the rate set in config.py
-    timeSinceLastUpdate += frameDelta
-    if timeSinceLastUpdate >= 1 / config.server.updatesPerSecond:
-        timeSinceLastUpdate = 0
+    __timeSinceLastUpdate += frameDelta
+    if __timeSinceLastUpdate >= 1 / config.server.updatesPerSecond:
+        __timeSinceLastUpdate = 0
         gameData.updateClients()
 
 # Maintains a consistent frame rate as set in config.py
@@ -70,7 +70,7 @@ async def gameClock():
                 lastFSPLog = datetime.datetime.now()
 
         # Now do the logic for this frame
-        onTick(frameDelta)
+        __onTick(frameDelta)
 
         # Sleep until the next frame
         await asyncio.sleep(delay)      # (If this doesn't sleep then the other tasks can never be completed.)

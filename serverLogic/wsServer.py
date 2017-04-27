@@ -62,7 +62,7 @@ async def __clientHandler(websocket, path):
     else:
         # Invalid client
         logPrint("A client tried to connect using an invalid API path - connection refused", 1)
-        await websocket.send("[Fatal Error] Invalid API path - Check that your config.py is up to date")
+        await websocket.send("[Fatal Error] Invalid API path - Please update your fork of the player client")
         return  # Returning from this function disconnects the client
 
     # Generate a clientID

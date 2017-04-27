@@ -33,8 +33,11 @@ class server:
     maxPlayers = 20                     # Won't let additional players connect once this number has been reached
 
     class apiPaths:
-        viewer = "/pyTanksAPI/viewer"   # Path that viewer clients connect on
-        player = "/pyTanksAPI/player"   # Path that player clients connect on
+        apiVersion = "alpha-0"          # Used to make sure the connecting player is up to date
+
+        # Paths for viewer and player clients to connect on:
+        player = "/pyTanksAPI/" + apiVersion + "/player"
+        viewer = "/pyTanksAPI/viewer"
 
     class clientTypes:
         viewer = "viewer"               # A javascript game viewing client

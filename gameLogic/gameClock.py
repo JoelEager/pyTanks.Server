@@ -30,7 +30,7 @@ def __onTick(frameDelta):
         __timeSinceLastUpdate = 0
         gameData.updateClients()
 
-# Maintains a consistent frame rate as set in config.py
+# Maintains a consistent frame rate as set in config.py and calls onTick() every frame
 async def gameClock():
     # For frame rate targeting
     lastFrameTime = datetime.datetime.now()

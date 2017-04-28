@@ -18,7 +18,7 @@ def startGame():
     gameData.walls = list()
 
     # Create the walls
-    for count in range(0, randint(5, 10)):
+    for count in range(0, randint(config.game.wall.wallCountBounds[0], config.game.wall.wallCountBounds[1])):
         isValidLocation = False
         aWall = None
         while not isValidLocation:

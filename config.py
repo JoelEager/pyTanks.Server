@@ -9,13 +9,13 @@ class game:
         height = 500                    # In pixels
 
     class tank:
-        speed = 25                      # In pixels per second
+        speed = 30                      # In pixels per second
         height = 10                     # In pixels
         width = 10                      # In pixels
-        reloadTime = 2                  # Minimum time to reload the tank's cannon (in seconds)
+        reloadTime = 1.5                # Minimum time to reload the tank's cannon (in seconds)
 
     class shell:
-        speed = 100                     # In pixels per second
+        speed = 150                     # In pixels per second
         height = 1                      # In pixels
         width = 1                       # In pixels
 
@@ -23,6 +23,7 @@ class game:
         shortSideBounds = [15, 30]      # Min and max in pixels
         longSideBounds = [50, 200]      # Min and max in pixels
         placementPadding = 15           # Min padding between a wall and the map bounds
+        wallCountBounds = [3, 7]        # Min and max number of walls in a game
 
 class server:
     # Both logLevel and ipAndPort can be overridden by command line args so the value here is only the default

@@ -33,7 +33,7 @@ class server:
     framesPerSecond = 60                # The target frame rate for the frameCallback function
     updatesPerSecond = 10               # How many game state updates should be sent to clients each second
     minPlayers = 4                      # Doesn't start a new game if there's less than this many player clients
-    maxPlayers = 20                     # Won't let additional players connect once this number has been reached
+    maxPlayers = 15                     # Won't let additional players connect once this number has been reached
 
     class apiPaths:
         apiVersion = "alpha-0"          # Used to make sure the connecting player is up to date

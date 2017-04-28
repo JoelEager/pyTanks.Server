@@ -1,6 +1,12 @@
+"""
+Handles logging of events
+"""
+
 import config
 
-# Handles logging of events
 def logPrint(message, minLevel):
+    """
+    Log a message with the given level
+    """
     if config.server.logLevel >= minLevel:
         print(message)

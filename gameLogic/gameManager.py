@@ -1,3 +1,7 @@
+"""
+Manages and updates the game state every frame and sets up new games
+"""
+
 from random import randint
 
 import config
@@ -6,10 +10,10 @@ import dataModels
 from serverLogic import serverData
 from serverLogic.logging import logPrint
 
-# The logic for running the game and sending updates to clients
-
-# Starts a new game
 def startGame():
+    """
+    Starts a new game
+    """
     gameData.shells = list()
     gameData.walls = list()
 
@@ -63,10 +67,12 @@ def startGame():
     gameData.ongoingGame = True
     logPrint("New game started with " + str(gameData.playerCount) + " players", 1)
 
-# Runs the logic to maintain the game state and applies commands from players
-#   (Called once every frame by gameClock.py)
-#   elapsedTime:    The time elapsed, in seconds, since the last frame
 def gameTick(elapsedTime):
+    """
+    Runs the logic to maintain the game state and applies commands from players
+        Called once every frame by gameClock.py
+    :param elapsedTime: The time elapsed, in seconds, since the last frame
+    """
     # Temporary, per-frame lists
     players = list()        # A complete list of the clientIDs of players with alive tanks
     otherTanks = list()     # The list of stopped tanks and already moved tanks used by checkTankLocation()

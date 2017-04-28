@@ -4,11 +4,15 @@ import datetime
 
 import config
 
-# Used to store an incoming player command
 class command:
-    # Called with a raw message string from a client
-    #   raises a ValueError if the message isn't a valid command
+    """
+    Used to store an incoming player command
+    """
     def __init__(self, message):
+        """
+        Called with a raw message string from a client
+        :raise: ValueError if the message isn't a valid command
+        """
         # Try to parse it as a JSON command
         try:
             message = json.loads(message)

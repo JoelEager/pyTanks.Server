@@ -2,9 +2,14 @@ from random import randint
 
 import config
 
-# Stores the state data for a wall on the map
 class wall:
+    """
+    Stores the state data for a wall on the map
+    """
     def __init__(self):
+        """
+        Randomly generates a wall using the bounding values in config.py
+        """
         # Set lengths for the long and short sides of the wall
         longSide = randint(config.game.wall.longSideBounds[0], config.game.wall.longSideBounds[1])
         shortSide = randint(config.game.wall.shortSideBounds[0], config.game.wall.shortSideBounds[1])
@@ -33,9 +38,11 @@ class wall:
         self.x += self.width / 2
         self.y += self.height / 2
 
-    # Returns the wall's polygon as a list of points as tuples
-    #   margin:     If set the polygon will have a padding of margin pixels in every direction
     def toPoly(self, margin=0):
+        """
+        :param margin: If set the polygon will have a padding of margin pixels in every direction
+        :return: The wall's polygon as a list of points as tuples
+        """
         halfWidth = (self.width / 2) + margin
         halfHeight = (self.height / 2) + margin
         return [(self.x - halfWidth, self.y - halfHeight),

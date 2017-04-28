@@ -1,26 +1,26 @@
-import sys
+"""
+Startup script for the pyTanks server
+    This script checks any command line args provided, applies them to config.py, and then starts wsServer.py
 
-import config
-from gameLogic import gameManager
-from serverLogic import wsServer
+Requirements:
+    Python 3.5 or newer
+    websockets 3.3 (pip install websockets==3.3)
 
-# Main/startup script of the pyTanks server
-#   This script checks any command line args provided, applies them to config.py, and then starts wsServer.py.
-#
-#   Requirements:
-#       Python 3.5 or newer
-#       websockets package (pip install websockets)
-#
-#   (See the below string for usage information.)
-
-usage = """
 Usage:
     python start.py
 
     The pyTanks server uses the settings found in config.py to control how the server works. Those values can be
     changed directly or be overridden by appending one or more of these command line args:
         log=n - Overrides the default logging level. (See the usage section of the readme.)
-        ip:port - Overrides the ip and port used to host the server."""
+        ip:port - Overrides the ip and port used to host the server.
+"""
+
+import sys
+
+import config
+from serverLogic.wsServer import runServer
+
+usage = __doc__[__doc__.index("Usage:"):].strip()
 
 if __name__ == "__main__":
     for arg in sys.argv:
@@ -36,7 +36,7 @@ if __name__ == "__main__":
         elif ":" in arg:
             config.server.ipAndPort = arg
         else:
-            print(usage.strip())
+            print(usage)
             sys.exit()
 
-    wsServer.runServer()
+    runServer()

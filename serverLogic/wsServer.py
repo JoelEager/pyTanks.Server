@@ -1,3 +1,8 @@
+"""
+The pyTanks server backend and asyncio code
+    Takes care of managing the io for the clients and spinning up gameClock.py
+"""
+
 import asyncio
 import websockets
 import random
@@ -9,11 +14,10 @@ from .logging import logPrint
 from gameLogic.gameClock import gameClock
 from gameLogic import gameData
 
-# The pyTanks server backend and asyncio code
-#   This takes care of managing the io for the clients and spinning up gameClock.py
-
-# Handles incoming messages from a player
 async def __playerReceiveTask(clientID):
+    """
+    Handles incoming messages from a player
+    """
     try:
         while clientID in serverData.clients:
             message = await serverData.clients[clientID].socket.recv()
@@ -28,8 +32,10 @@ async def __playerReceiveTask(clientID):
 
     logPrint("playerReceiveTask for client #" + str(clientID) + " exited", 2)
 
-# Handles sending queued messages to a client
 async def __clientSendTask(clientID):
+    """
+    Handles sending queued messages to a client
+    """
     try:
         while clientID in serverData.clients:
             if len(serverData.clients[clientID].outgoing) != 0:
@@ -46,8 +52,10 @@ async def __clientSendTask(clientID):
 
     logPrint("clientSendTask for client #" + str(clientID) + " exited", 2)
 
-# Registers a client and starts the io task(s) for it
 async def __clientHandler(websocket, path):
+    """
+    Registers a client and starts the io task(s) for it
+    """
     # Check the client's connection path and set API type
     if path == config.server.apiPaths.viewer:
         clientType = config.server.clientTypes.viewer
@@ -97,8 +105,10 @@ async def __clientHandler(websocket, path):
     logPrint("handler for client #" + str(clientID) + " exited (connection closed)", 1)
     # (When this function returns the socket dies)
 
-# Starts the sever and asyncio loop
 def runServer():
+    """
+    Starts the sever and asyncio loop
+    """
     # Configure websocket server logging
     if config.server.logLevel >= 5:
         import logging

@@ -1,3 +1,7 @@
+"""
+Holds the game's data structures and the functions for interacting with them
+"""
+
 import json
 import copy
 
@@ -5,22 +9,27 @@ import config
 from serverLogic import serverData
 from dataModels import tank
 
-# Holds the game's data structures and the functions for interacting with them
-
 shells = list()         # The list of shells currently in flight
 walls = list()          # The list of walls on the map
 
 playerCount = 0         # The current number of connected players
 ongoingGame = False     # Is there a game in progress currently?
 
-# Send game state updates to clients
-#   (Called every time an update is due to be sent by gameClock.py)
 def updateClients():
-    # Generates JSON for a given object
-    #   doClean - True/False to indicate if the dict should be cleaned for sending to players
+    """
+    Sends game state updates to clients
+        Called every time an update is due to be sent by gameClock.py
+    """
     def generateJSON(rootObj, doClean):
-        # Function for helping the json encoder in parsing objects
+        """
+        Generates JSON for a given object
+        :param rootObj: The object to encode
+        :param doClean: True/False to indicate if the dict should be cleaned for sending to players
+        """
         def objToDict(obj):
+            """
+            Helps the json encoder in parsing objects
+            """
             if isinstance(obj, tank):
                 return obj.toDict(doClean)
             else:

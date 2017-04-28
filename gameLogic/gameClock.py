@@ -1,3 +1,7 @@
+"""
+The asyncio code that maintains a consistent frame rate and runs the on-frame logic
+"""
+
 import datetime
 import asyncio
 
@@ -5,13 +9,14 @@ import config
 from serverLogic.logging import logPrint
 from . import gameData, gameManager
 
-# The asyncio code that maintains a consistent frame rate and runs the on-frame logic
-
 # For timing game state updates
 __timeSinceLastUpdate = 1 / config.server.updatesPerSecond
 
-# Runs gameManager's and gameData's functions at the rates set in config.py
 def __onTick(frameDelta):
+    """
+    Runs gameManager's and gameData's functions at the rates set in config.py
+    :param frameDelta: The time elapsed, in seconds, since the last frame
+    """
     global __timeSinceLastUpdate
 
     if not gameData.ongoingGame and gameData.playerCount >= config.server.minPlayers:
@@ -30,8 +35,10 @@ def __onTick(frameDelta):
         __timeSinceLastUpdate = 0
         gameData.updateClients()
 
-# Maintains a consistent frame rate as set in config.py and calls onTick() every frame
 async def gameClock():
+    """
+    Maintains a consistent frame rate as set in config.py and calls onTick() every frame
+    """
     # For frame rate targeting
     lastFrameTime = datetime.datetime.now()
     baseDelay = 1 / config.server.framesPerSecond

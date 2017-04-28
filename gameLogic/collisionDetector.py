@@ -1,18 +1,24 @@
+"""
+Performs collision detection on convex 2D polygons by means of the Separating axis theorem (SAT)
+    The contents of this file are based of off a Python implementation of SAT created by Juan Antonio Aldea Armenteros.
+    The original version is available at https://github.com/JuantAldea/Separating-Axis-Theorem/. That code is under the
+    GNU General Public License, but I (Joel Eager) have received written permission to distribute this modified version
+    under the MIT license.
+"""
+
 from math import sqrt
 
 import config
 
-# Performs collision detection on convex 2D polygons by means of the Separating axis theorem (SAT)
-#   The contents of this file are based of off a Python implementation of SAT created by Juan Antonio Aldea Armenteros.
-#   The original version is available at https://github.com/JuantAldea/Separating-Axis-Theorem/. That code is under the
-#   GNU General Public License, but I (Joel Eager) have received written permission to distribute this modified version
-#   under the MIT license.
-
-# Checks for a collision between two polygons using SAT
-#   poly1, poly2:   The two polygons described as lists of points as tuples (Example: [(x1, y1), (x2, y2), (x3, y3)])
-#   maxDist:        The maximum distance between any two points of any two polygons that can be touching
-#                   (If this is left off the optimization check that uses it will be skipped)
 def hasCollided(poly1, poly2, maxDist=None):
+    """
+    Checks for a collision between two polygons using Separating axis theorem (SAT)
+    :param poly1, poly2: The two polygons described as lists of points as tuples
+        Example: [(x1, y1), (x2, y2), (x3, y3)]
+    :param maxDist: The maximum distance between any two points of any two polygons that can be touching
+        If this is left off the optimization check that uses it will be skipped
+    :return: The boolean result
+    """
     def normalizeVector(vector):
         norm = sqrt(vector[0] ** 2 + vector[1] ** 2)
         return vector[0] / norm, vector[1] / norm
@@ -79,17 +85,21 @@ def hasCollided(poly1, poly2, maxDist=None):
         # No maxDist so run SAT on the polys
         return runSAT(poly1, poly2)
 
-# Finds a maxDist for two rectangles that can be feed into hasCollided()
-#   (To do so this function finds the maximum distance that can any two corners on two rectangles can be separated by
-#   while the rectangles are touching.)
-#   rect1, rect2:   Objects or classes representing rectangles with width and height fields
 def getMaxDist(rect1, rect2):
+    """
+    Finds the maxDist for two rectangles that can be feed into hasCollided()
+        To do so this function finds the maximum distance that can any two corners on two rectangles can be separated 
+        by while the rectangles are touching.
+    :param rect1, rect2: Objects or classes representing rectangles with width and height fields
+    """
     rect1Size = sqrt(rect1.width ** 2 + rect1.height ** 2)
     rect2Size = sqrt(rect2.width ** 2 + rect2.height ** 2)
 
     return rect1Size + rect2Size
 
-# Pre-calculated maxDist values for use when checking collisions between two objects with sizes set by config.py
 class maxDistValues:
+    """
+    Pre-calculated maxDist values for use when checking collisions between two objects with sizes set by config.py
+    """
     tankShell = getMaxDist(config.game.tank, config.game.shell)
     tankTank = getMaxDist(config.game.tank, config.game.tank)

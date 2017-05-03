@@ -6,7 +6,10 @@ Performs collision detection on convex 2D polygons by means of the separating ax
     under the MIT license.
     
 If this script is run as __main__ it will call perfTest() to perform a performance benchmark
-    Usage: python collisionDetector.py <numOfTrials>
+
+Usage:
+    export PYTHONPATH="../"
+    python collisionDetector.py <numOfTrials>
 """
 
 import math
@@ -42,13 +45,6 @@ def hasCollided(poly1, poly2, maxDist=None):
         """
         return vector[1], - vector[0]
 
-    def normalizeVector(vector):
-        """
-        :return: A unit vector in the direction of the vector
-        """
-        norm = math.sqrt(vector[0] ** 2 + vector[1] ** 2)
-        return vector[0] / norm, vector[1] / norm
-
     def dotProduct(vector1, vector2):
         """
         :return: The dot (or scalar) product of the two vectors
@@ -62,37 +58,18 @@ def hasCollided(poly1, poly2, maxDist=None):
         dots = [dotProduct(point, axis) for point in poly]
         return [min(dots), max(dots)]
 
-    def contains(n, rangeVector):
-        """
-        :return: Boolean indicating if n is between the values of rangeVector
-        """
-        a = rangeVector[0]
-        b = rangeVector[1]
-        if b < a:
-            a = rangeVector[1]
-            b = rangeVector[0]
-        return (n >= a) and (n <= b)
-
     def overlap(projection1, projection2):
         """
         :return: Boolean indicating if the two projections overlap
         """
-        if contains(projection1[0], projection2):
-            return True
-        if contains(projection1[1], projection2):
-            return True
-        if contains(projection2[0], projection1):
-            return True
-        if contains(projection2[1], projection1):
-            return True
-        return False
+        return min(projection1) <= max(projection2) and min(projection2) <= max(projection1)
 
     def runSAT(poly1, poly2):
         """
         :return: The boolean result of running separating axis theorem on the two polys
         """
         edges = polyToEdges(poly1) + polyToEdges(poly2)
-        axes = [normalizeVector(orthogonal(edge)) for edge in edges]
+        axes = [orthogonal(edge) for edge in edges]
 
         for axis in axes:
             overlapping = overlap(project(poly1, axis), project(poly2, axis))

@@ -22,7 +22,7 @@ class game:
     class wall:
         shortSideBounds = [15, 30]      # Min and max in pixels
         longSideBounds = [50, 200]      # Min and max in pixels
-        placementPadding = 15           # Min padding between a wall and the map bounds
+        placementPadding = 15           # Min padding between walls (including the edge of the map)
         wallCountBounds = [3, 7]        # Min and max number of walls in a game
 
 class server:

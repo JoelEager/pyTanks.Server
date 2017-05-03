@@ -29,6 +29,7 @@ class shell:
         """
         :return: The shell's polygon as a list of points as tuples
         """
+        # (This implementation skips the rotation math since shells are so small)
         halfWidth = config.game.shell.width / 2
         halfHeight = config.game.shell.height / 2
         return [(self.x - halfWidth, self.y - halfHeight), (self.x - halfWidth, self.y + halfHeight),

@@ -72,7 +72,19 @@ class tank:
         """
         :return: The tank's polygon as a list of points as tuples
         """
+        sin = math.sin(self.heading)
+        cos = math.cos(self.heading)
+
+        def rotateVector(x, y):
+            return x * cos - y * sin, x * sin + y * cos
+
         halfWidth = config.game.tank.width / 2
         halfHeight = config.game.tank.height / 2
-        return [(self.x - halfWidth, self.y - halfHeight), (self.x - halfWidth, self.y + halfHeight),
-                (self.x + halfWidth, self.y - halfHeight), (self.x + halfWidth, self.y + halfHeight)]
+        poly = [rotateVector(-halfWidth, -halfHeight), rotateVector(-halfWidth, halfHeight),
+                rotateVector(halfWidth, -halfHeight), rotateVector(halfWidth, halfHeight)]
+
+        for count in range(0, len(poly)):
+            vector = poly[count]
+            poly[count] = (vector[0] + self.x, vector[1] + self.y)
+
+        return poly

@@ -87,7 +87,7 @@ def hasCollided(poly1, poly2, maxDist=None):
 
 def getMaxDist(rect1, rect2):
     """
-    Finds the maxDist for two rectangles that can be feed into hasCollided()
+    Finds the maxDist for two rectangles that can be fed into hasCollided()
         To do so this function finds the maximum distance that can any two corners on two rectangles can be separated 
         by while the rectangles are touching.
     :param rect1, rect2: Objects or classes representing rectangles with width and height fields

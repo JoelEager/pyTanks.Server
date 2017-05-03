@@ -4,9 +4,12 @@ Performs collision detection on convex 2D polygons by means of the separating ax
     The original version is available at https://github.com/JuantAldea/Separating-Axis-Theorem/. That code is under the
     GNU General Public License, but I (Joel Eager) have received written permission to distribute this modified version
     under the MIT license.
+    
+If this script is run as __main__ it will call perfTest() to perform a performance benchmark
+    Usage: python collisionDetector.py <numOfTrials>
 """
 
-from math import sqrt
+import math
 
 import config
 
@@ -43,7 +46,7 @@ def hasCollided(poly1, poly2, maxDist=None):
         """
         :return: A unit vector in the direction of the vector
         """
-        norm = sqrt(vector[0] ** 2 + vector[1] ** 2)
+        norm = math.sqrt(vector[0] ** 2 + vector[1] ** 2)
         return vector[0] / norm, vector[1] / norm
 
     def dotProduct(vector1, vector2):
@@ -115,8 +118,8 @@ def getMaxDist(rect1, rect2):
         by while the rectangles are touching.
     :param rect1, rect2: Objects or classes representing rectangles with width and height fields
     """
-    rect1Size = sqrt(rect1.width ** 2 + rect1.height ** 2)
-    rect2Size = sqrt(rect2.width ** 2 + rect2.height ** 2)
+    rect1Size = math.sqrt(rect1.width ** 2 + rect1.height ** 2)
+    rect2Size = math.sqrt(rect2.width ** 2 + rect2.height ** 2)
 
     return rect1Size + rect2Size
 
@@ -126,3 +129,57 @@ class maxDistValues:
     """
     tankShell = getMaxDist(config.game.tank, config.game.shell)
     tankTank = getMaxDist(config.game.tank, config.game.tank)
+
+def perfTest(iterations):
+    """
+    Runs a speed benchmark on hasCollided() using a tank and shell and prints the results
+    :param iterations: The number of times to repeat each test
+    """
+    import datetime
+    from dataModels import tank, shell
+
+    def runTrials(maxDist=None):
+        """
+        Runs the number of trials set by iterations
+        :return: The time taken in seconds
+        """
+        # Set up the objects
+        aTank = tank()
+        aTank.x = 200
+        aTank.y = 100
+        aShell = shell(0, aTank, 0)
+
+        # Run the trials
+        start = datetime.datetime.now()
+        for count in range(0, iterations):
+            aShell.x = 100
+
+            while not hasCollided(aTank.toPoly(), aShell.toPoly(), maxDist=maxDist):
+                aShell.move(1)
+
+        return (datetime.datetime.now() - start).total_seconds()
+
+    def round(num, precision):
+        """
+        :return: num rounded to the given number of digits after the decimal
+        """
+        return math.ceil(num * (10 ** precision)) / (10 ** precision)
+
+    print("Benchmarking hasCollided() using a shell and tank...")
+    print("Using " + str(iterations) + " iterations\n")
+
+    timeWith = runTrials(maxDist=maxDistValues.tankShell)
+    timeWithout = runTrials()
+
+    print("Time with maxDist: " + str(round(timeWith, 5)) + " secs")
+    print("Time without:      " + str(round(timeWithout, 5)) + " secs\n")
+
+    print("maxDist is " + str(round(timeWithout / timeWith, 2)) + " times faster")
+
+# If this file is run just launch perfTest()
+if __name__ == "__main__":
+    import sys
+    try:
+        perfTest(int(sys.argv[1]))
+    except (ValueError, IndexError):
+        print("Usage: python collisionDetector.py <numOfTrials>")

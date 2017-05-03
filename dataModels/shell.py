@@ -32,5 +32,7 @@ class shell:
         # (This implementation skips the rotation math since shells are so small)
         halfWidth = config.game.shell.width / 2
         halfHeight = config.game.shell.height / 2
-        return [(self.x - halfWidth, self.y - halfHeight), (self.x - halfWidth, self.y + halfHeight),
-                (self.x + halfWidth, self.y - halfHeight), (self.x + halfWidth, self.y + halfHeight)]
+        return [(self.x - halfWidth, self.y - halfHeight),
+                (self.x + halfWidth, self.y - halfHeight),
+                (self.x + halfWidth, self.y + halfHeight),
+                (self.x - halfWidth, self.y + halfHeight)]

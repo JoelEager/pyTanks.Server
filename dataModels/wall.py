@@ -45,5 +45,7 @@ class wall:
         """
         halfWidth = (self.width / 2) + margin
         halfHeight = (self.height / 2) + margin
-        return [(self.x - halfWidth, self.y - halfHeight), (self.x - halfWidth, self.y + halfHeight),
-                (self.x + halfWidth, self.y - halfHeight), (self.x + halfWidth, self.y + halfHeight)]
+        return [(self.x - halfWidth, self.y - halfHeight),
+                (self.x + halfWidth, self.y - halfHeight),
+                (self.x + halfWidth, self.y + halfHeight),
+                (self.x - halfWidth, self.y + halfHeight)]

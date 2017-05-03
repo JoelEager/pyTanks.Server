@@ -80,8 +80,10 @@ class tank:
 
         halfWidth = config.game.tank.width / 2
         halfHeight = config.game.tank.height / 2
-        poly = [rotateVector(-halfWidth, -halfHeight), rotateVector(-halfWidth, halfHeight),
-                rotateVector(halfWidth, -halfHeight), rotateVector(halfWidth, halfHeight)]
+        poly = [rotateVector(-halfWidth, -halfHeight),
+                rotateVector(halfWidth, -halfHeight),
+                rotateVector(halfWidth, halfHeight),
+                rotateVector(-halfWidth, halfHeight)]
 
         for count in range(0, len(poly)):
             vector = poly[count]

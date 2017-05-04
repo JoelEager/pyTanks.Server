@@ -14,7 +14,7 @@ Usage:
         ip:port - Overrides the ip and port used to host the server.
         
     Args can also be placed in the PYTANKS_ARGS environment variable
-    (They will be applied after the command line args) 
+    (They will be applied before the command line args) 
 """
 
 import sys
@@ -41,7 +41,7 @@ def main():
     from serverLogic.wsServer import runServer
 
     # Parse and apply the args
-    args = sys.argv + os.environ.get("PYTANKS_ARGS", "").split(" ")
+    args = os.environ.get("PYTANKS_ARGS", "").split(" ") + sys.argv
     for arg in args:
         if arg == sys.argv[0] or arg == "":
             continue

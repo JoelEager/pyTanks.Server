@@ -1,7 +1,7 @@
 # pyTanks
  \- A battleground for Python AIs to fight it out.
  
-**See it live at [pytanks.csh.rit.edu](pytanks.csh.rit.edu).**
+**See it live at [pytanks.csh.rit.edu](http://pytanks.csh.rit.edu).**
 
 pyTanks is a project in three modules:
 - **Server** - A Python server that hosts a top-down, simplistic game of tanks. This takes care of maintaining the game state, handling commands from the players, and sending game state updates to both viewers and players.

@@ -113,7 +113,9 @@ def perfTest(iterations):
     :param iterations: The number of times to repeat each test
     """
     import datetime
+
     from dataModels import tank, shell
+    from serverLogic.logging import round
 
     def runTrials(maxDist=None):
         """
@@ -135,12 +137,6 @@ def perfTest(iterations):
                 aShell.move(1)
 
         return (datetime.datetime.now() - start).total_seconds()
-
-    def round(num, precision):
-        """
-        :return: num rounded to the given number of digits after the decimal
-        """
-        return math.ceil(num * (10 ** precision)) / (10 ** precision)
 
     print("Benchmarking hasCollided() using a shell and tank...")
     print("Using " + str(iterations) + " iterations\n")

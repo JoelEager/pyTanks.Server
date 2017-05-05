@@ -1,8 +1,10 @@
 """
-Handles logging of events
+Handles logging of events and provides utilities for generating log messages
 """
 
 import config
+
+import math
 
 def logPrint(message, minLevel):
     """
@@ -10,3 +12,9 @@ def logPrint(message, minLevel):
     """
     if config.server.logLevel >= minLevel:
         print(message)
+
+def round(num, precision):
+    """
+    :return: num rounded to the given number of digits after the decimal
+    """
+    return math.ceil(num * (10 ** precision)) / (10 ** precision)

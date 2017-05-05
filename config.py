@@ -31,13 +31,13 @@ class server:
     logLevel = 3                        # The amount of server-side logging (See the usage section of the readme)
 
     framesPerSecond = 60                # The target frame rate for the frameCallback function
-    fpsLogRate = 5                      # How many seconds to wait between logging current FPS
+    fpsLogRate = 5                      # How many seconds to wait between logging the current FPS
     updatesPerSecond = 10               # How many game state updates should be sent to clients each second
     minPlayers = 4                      # Doesn't start a new game if there's less than this many player clients
     maxPlayers = 15                     # Won't let additional players connect once this number has been reached
 
     class apiPaths:
-        apiVersion = "alpha-0"          # Used to make sure the connecting player is up to date
+        apiVersion = "beta-0"          # Used to make sure the connecting player is up to date
 
         # Paths for viewer and player clients to connect on:
         player = "/pyTanksAPI/" + apiVersion + "/player"

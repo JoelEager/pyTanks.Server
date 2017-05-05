@@ -2,9 +2,9 @@
 Handles logging of events and provides utilities for generating log messages
 """
 
-import config
-
 import math
+
+import config
 
 def logPrint(message, minLevel):
     """

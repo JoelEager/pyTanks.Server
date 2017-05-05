@@ -1,5 +1,7 @@
 # pyTanks
  \- A battleground for Python AIs to fight it out.
+ 
+**See it live at [pytanks.csh.rit.edu](pytanks.csh.rit.edu).**
 
 pyTanks is a project in three modules:
 - **Server** - A Python server that hosts a top-down, simplistic game of tanks. This takes care of maintaining the game state, handling commands from the players, and sending game state updates to both viewers and players.
@@ -10,7 +12,7 @@ pyTanks is a project in three modules:
 - Python 3.5 or newer
 - [websockets 3.3](https://github.com/aaugustin/websockets) (`pip install websockets==3.3`)
 
-**Note: pyTanks is currently in an "alpha" state. Feel free to play around with it and offer feedback but don't expect the code to be feature-complete or bug free.**
+**Note: pyTanks is currently in beta testing. Please try your hand at making an AI and offer feedback. However, the API and game mechanics are subject to change.**
 
 ## Server
 ### Usage:

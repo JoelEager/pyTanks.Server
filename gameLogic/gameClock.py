@@ -69,11 +69,11 @@ async def gameClock():
             delay = 1 / 250
 
         # Log FPS if FPS logging is enabled
-        if avgDelta != 0:
-            if 1 / avgDelta < minFPS:
-                minFPS = 1 / avgDelta
-
         if config.server.logLevel >= 1:
+            if avgDelta != 0:
+                if 1 / avgDelta < minFPS:
+                    minFPS = 1 / avgDelta
+
             frameCount += 1
 
             if (datetime.datetime.now() - lastFSPLog).total_seconds() >= config.server.fpsLogRate:

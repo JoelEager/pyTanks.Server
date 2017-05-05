@@ -80,6 +80,7 @@ async def gameClock():
                 logPrint("FPS: avg=" + str(frameCount / config.server.fpsLogRate) + ", min=" +
                          str(round(minFPS, 1)), 3)
                 frameCount = 0
+                minFPS = config.server.framesPerSecond
                 lastFSPLog = datetime.datetime.now()
 
         # Now do the logic for this frame

@@ -181,8 +181,10 @@ def gameTick(elapsedTime):
             checkTankLocation(tank)
             otherTanks.append(tank)
 
-    if len(players) == 1:
-        # We have a winner!
-        serverData.clients[players[0]].tank.wins += 1
-        serverData.clients[players[0]].tank.alive = False
+    if len(players) <= 1:
+        # Game over
+        if len(players) == 1:
+            # We have a winner!
+            serverData.clients[players[0]].tank.wins += 1
+            serverData.clients[players[0]].tank.alive = False
         gameData.ongoingGame = False

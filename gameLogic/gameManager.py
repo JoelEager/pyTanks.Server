@@ -172,7 +172,8 @@ def gameTick(elapsedTime):
                     # Mark tank as dead, give the shooter a kill, and delete the shell
                     tank.alive = False
                     tank.moving = False
-                    serverData.clients[shell.shooterId].tank.kills += 1
+                    if shell.shooterId in serverData.clients:
+                        serverData.clients[shell.shooterId].tank.kills += 1
                     del gameData.shells[index]
                     break
 

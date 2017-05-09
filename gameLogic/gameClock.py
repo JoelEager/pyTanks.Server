@@ -7,6 +7,7 @@ import asyncio
 
 import config
 from serverLogic.logging import logPrint, round
+from serverLogic import serverData
 from . import gameData, gameManager
 
 # For timing game state updates
@@ -78,7 +79,8 @@ async def gameClock():
 
             if (datetime.datetime.now() - lastFSPLog).total_seconds() >= config.server.fpsLogRate:
                 logPrint("FPS: avg=" + str(frameCount / config.server.fpsLogRate) + ", min=" +
-                         str(round(minFPS, 1)), 3)
+                         str(round(minFPS, 1)) + "; Clients: players=" + str(gameData.playerCount) +
+                         ", viewers=" + str(len(serverData.clients.keys()) - gameData.playerCount), 3)
                 frameCount = 0
                 minFPS = config.server.framesPerSecond
                 lastFSPLog = datetime.datetime.now()

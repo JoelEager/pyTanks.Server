@@ -26,7 +26,7 @@ Where the log level is one of:
 - 0 for no logging
 - 1 for connect/disconnect and new game
 - 2 for server status and client errors
-- 3 for FPS
+- 3 for FPS and client counts
 - 4 for server IO
 - 5 for verbose websocket logs
 

@@ -1,6 +1,6 @@
 import json
 import numbers
-import datetime
+import html
 
 import config
 
@@ -32,3 +32,29 @@ class command:
                 raise ValueError("Missing or invalid arg")
 
             self.arg = message["arg"]
+        elif self.action == config.server.commands.setInfo:
+            self.arg = str(message.get("arg"))
+
+            if len(self.arg) > config.server.commands.infoMaxLen:
+                raise ValueError("Info string is longer than " + str(config.server.commands.infoMaxLen) + " characters")
+
+            self.arg = html.escape(self.arg)
+            self.arg = self.arg.replace("\n", " <br /> ")
+
+            # Parse urls
+            start = self.arg.find("http")
+            while start != -1:
+                end = self.arg.find(" ", start)
+                if end == -1:
+                    end = len(self.arg)
+
+                if self.arg[start:start + 7] == "http://" or self.arg[start:start + 8] == "https://":
+                    url = self.arg[start:end]
+                    aTag = "<a href='" + url + "' target='_blank'>" + url + "</a>"
+                    self.arg = self.arg[:start] + aTag + self.arg[end:]
+                    end += len(aTag) - len(url)
+
+                start = self.arg.find("http", end)
+        else:
+            if "arg" in message:
+                raise ValueError("Unexpected arg")

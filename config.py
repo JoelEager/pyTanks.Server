@@ -37,7 +37,7 @@ class server:
     maxPlayers = 15                     # Won't let additional players connect once this number has been reached
 
     class apiPaths:
-        apiVersion = "beta-0"          # Used to make sure the connecting player is up to date
+        apiVersion = "beta-1"          # Used to make sure the connecting player is up to date
 
         # Paths for viewer and player clients to connect on:
         player = "/pyTanksAPI/" + apiVersion + "/player"
@@ -53,8 +53,10 @@ class server:
         turn = "Command_Turn"
         stop = "Command_Stop"
         go = "Command_Go"
+        setInfo = "Command_Info"
 
-        validCommands = [fire, turn, stop, go]
+        infoMaxLen = 200    # The max length for a valid info string
+        validCommands = [fire, turn, stop, go, setInfo]
 
     # User-facing tank names
     tankNames = [

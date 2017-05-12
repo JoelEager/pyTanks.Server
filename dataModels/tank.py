@@ -21,6 +21,8 @@ class tank:
         self.kills = 0          # Kills in the current round
         self.wins = 0           # Rounds won
 
+        self.info = "None set"  # The string identifying this player's author or other info
+
     def spawn(self):
         """
         Resets the tank's per-game variables (other than position)
@@ -61,10 +63,11 @@ class tank:
         # The lastShotTime should never be in a gameState update
         del myDict["_tank__lastShotTime"]
 
-        # Remove scores if this update needs to be cleaned
+        # Remove info that should be hidden from players
         if doClean:
             del myDict["kills"]
             del myDict["wins"]
+            del myDict["info"]
 
         return myDict
 

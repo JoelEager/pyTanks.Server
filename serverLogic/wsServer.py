@@ -22,7 +22,12 @@ async def __playerReceiveTask(clientID):
         while clientID in serverData.clients:
             message = await serverData.clients[clientID].socket.recv()
             logPrint("Got message from " + str(clientID) + ": " + message, 4)
-            serverData.clients[clientID].incoming.append(dataModels.command(message))
+            command = dataModels.command(message)
+
+            if command.action == config.server.commands.setInfo:
+                serverData.clients[clientID].tank.info = command.arg
+            else:
+                serverData.clients[clientID].incoming.append(command)
     except websockets.exceptions.ConnectionClosed:
         # The socket closed
         pass

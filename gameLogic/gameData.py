@@ -31,7 +31,7 @@ def updateClients():
             Helps the json encoder in parsing objects
             """
             if isinstance(obj, tank):
-                if doClean and hasattr(obj, "id"):
+                if doClean and not hasattr(obj, "name"):
                     return obj.toDict(True)
                 else:
                     return obj.toDict(False)

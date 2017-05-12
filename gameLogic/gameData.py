@@ -20,7 +20,7 @@ def updateClients():
     Sends game state updates to clients
         Called every time an update is due to be sent by gameClock.py
     """
-    def generateJSON(rootObj, doClean):
+    def generateJSON(gameStateObj, doClean):
         """
         Generates JSON for a given object
         :param rootObj: The object to encode
@@ -31,11 +31,14 @@ def updateClients():
             Helps the json encoder in parsing objects
             """
             if isinstance(obj, tank):
-                return obj.toDict(doClean)
+                if doClean and hasattr(obj, "id"):
+                    return obj.toDict(True)
+                else:
+                    return obj.toDict(False)
             else:
                 return obj.__dict__
 
-        return json.dumps(objToDict(rootObj), default=objToDict, separators=(',', ':'))
+        return json.dumps(objToDict(gameStateObj), default=objToDict, separators=(',', ':'))
 
     # Build a gameState object
     class gameState:
@@ -52,6 +55,7 @@ def updateClients():
     for clientID in serverData.clients:
         if serverData.clients[clientID].isPlayer():
             aTank = copy.copy(serverData.clients[clientID].tank)
+            aTank.id = clientID
             tanks[clientID] = aTank
 
     # Send out clean data to players
@@ -63,7 +67,7 @@ def updateClients():
         myTank.canShoot = myTank.canShoot()
         currentGameState.myTank = myTank
 
-        # Generate a list of tanks containing all but the current tank and add it to currentGameState
+        # Generate a dictionary of tanks containing all but the current tank and add it to currentGameState
         del tanks[playerID]
         currentGameState.tanks = list(tanks.values())
 
@@ -73,10 +77,15 @@ def updateClients():
         # Clean up currentGameState, myTank, and the cleanedTanks dict
         del currentGameState.myTank
         del myTank.name
+        del myTank.canShoot
         tanks[playerID] = myTank
 
     # Send complete data to the viewers
     for playerID in tankIDs:
+        del tanks[playerID].id
+
+    for playerID in tankIDs:
         tanks[playerID].name = config.server.tankNames[playerID]
+    
     currentGameState.tanks = list(tanks.values())
     serverData.send(config.server.clientTypes.viewer, generateJSON(currentGameState, False))

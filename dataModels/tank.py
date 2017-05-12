@@ -9,8 +9,8 @@ class tank:
     Stores the state data for a tank
     """
     def __init__(self):
-        self.x = -100           # Current x position
-        self.y = -100           # Current y position
+        self.x = -100           # Current x position of the tank's center
+        self.y = -100           # Current y position of the tank's center
         self.heading = 0        # Current heading in radians from the +x axis
         self.moving = False     # Boolean for whether or not this tank is moving
         self.alive = False      # Boolean for whether or not this tank is alive

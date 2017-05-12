@@ -37,7 +37,7 @@ class server:
     maxPlayers = 15                     # Won't let additional players connect once this number has been reached
 
     class apiPaths:
-        apiVersion = "beta-1"          # Used to make sure the connecting player is up to date
+        apiVersion = "beta-2"          # Used to make sure the connecting player is up to date
 
         # Paths for viewer and player clients to connect on:
         player = "/pyTanksAPI/" + apiVersion + "/player"

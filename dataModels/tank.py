@@ -21,7 +21,8 @@ class tank:
         self.kills = 0          # Kills in the current round
         self.wins = 0           # Rounds won
 
-        self.info = "None set"  # The string identifying this player's author or other info
+        # The string identifying this player's author or other info
+        self.info = "This player has not provided any info."
 
     def spawn(self):
         """

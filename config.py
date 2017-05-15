@@ -13,6 +13,7 @@ class game:
         height = 10                     # In pixels
         width = 10                      # In pixels
         reloadTime = 1.5                # Minimum time to reload the tank's cannon (in seconds)
+        spawnPadding = 50               # Min padding between tanks on spawn
 
     class shell:
         speed = 150                     # In pixels per second

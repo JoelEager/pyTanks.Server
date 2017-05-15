@@ -72,8 +72,9 @@ class tank:
 
         return myDict
 
-    def toPoly(self):
+    def toPoly(self, margin=0):
         """
+        :param margin: If set the polygon will have a padding of margin pixels in every direction
         :return: The tank's polygon as a list of points as tuples
         """
         sin = math.sin(self.heading)
@@ -82,8 +83,8 @@ class tank:
         def rotateVector(x, y):
             return x * cos - y * sin, x * sin + y * cos
 
-        halfWidth = config.game.tank.width / 2
-        halfHeight = config.game.tank.height / 2
+        halfWidth = (config.game.tank.width / 2) + margin
+        halfHeight = (config.game.tank.height / 2) + margin
         poly = [rotateVector(-halfWidth, -halfHeight),
                 rotateVector(halfWidth, -halfHeight),
                 rotateVector(halfWidth, halfHeight),

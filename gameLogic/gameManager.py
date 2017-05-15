@@ -57,7 +57,8 @@ def startGame():
 
                 # Check for collisions with the other tanks
                 for otherTank in tanksSpawned:
-                    if collisionDetector.hasCollided(tank.toPoly(), otherTank.toPoly()):
+                    if collisionDetector.hasCollided(tank.toPoly(),
+                                                     otherTank.toPoly(margin=config.game.tank.spawnPadding)):
                         isValidLocation = False
                         break
 

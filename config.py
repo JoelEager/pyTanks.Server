@@ -33,6 +33,8 @@ class server:
     framesPerSecond = 60                # The target frame rate for the frameCallback function
     fpsLogRate = 5                      # How many seconds to wait between logging the current FPS
     updatesPerSecond = 10               # How many game state updates should be sent to clients each second
+    timeout = 5                         # Disconnect any clients that have been unresponsive for this many seconds
+
     minPlayers = 4                      # Doesn't start a new game if there's less than this many player clients
     maxPlayers = 15                     # Won't let additional players connect once this number has been reached
 

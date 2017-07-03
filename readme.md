@@ -12,7 +12,10 @@ pyTanks is a project in three modules:
 - Python 3.5 or newer
 - [websockets 3.3](https://github.com/aaugustin/websockets) (`pip install websockets==3.3`)
 
-**Note: pyTanks is currently in beta testing. Please try your hand at making an AI and offer feedback. However, the API and game mechanics are subject to change.**
+**Note: pyTanks is currently in beta testing. Please feel free to try your hand at making an AI and offer feedback. However, the API and game mechanics are subject to change.**
+
+### Writing players in other languages:
+All components of pyTanks communicate using JSON strings sent over a websockets connection. The Player API has intentionally been kept simple to make it easy to implement it in other languages. Matthew Seaman has released an open source Swift implementation of the pyTanks Player so if Swift is your thing you can [give it a try](https://github.com/matthewseaman/pyTanks.SwiftPlayer).
 
 ## Server
 ### Usage:

@@ -10,7 +10,7 @@ pyTanks is a project in three modules:
 
 ### Requirements:
 - Python 3.5 or newer
-- [websockets 3.3](https://github.com/aaugustin/websockets) (`pip install websockets==3.3`)
+- [websockets 3.3](https://github.com/aaugustin/websockets) (`pip3 install websockets==3.3`)
 
 **Note: pyTanks is currently in beta testing. Please feel free to try your hand at making an AI and offer feedback. However, the API and game mechanics are subject to change.**
 
@@ -19,7 +19,7 @@ All components of pyTanks communicate using JSON strings sent over a websockets 
 
 ## Server
 ### Usage:
-```python start.py```
+```python3 start.py```
 
 The pyTanks player uses the settings found in `config.py` to control how the client works. Those values can be changed directly or be overridden by appending one or more of these command line args:
 - `log=n` - Overrides the default logging level.

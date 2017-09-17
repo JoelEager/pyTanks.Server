@@ -1,5 +1,5 @@
 """
-Contains the classes used for storing and organizing game and server state data
+Contains the classes used for storing and organizing game and server state
 """
 from .client import client
 from .command import command

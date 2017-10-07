@@ -36,7 +36,7 @@ def updateClients():
                 else:
                     return obj.toDict(False)
             else:
-                return obj.__dict__
+                return vars(obj)
 
         return json.dumps(objToDict(gameStateObj), default=objToDict, separators=(',', ':'))
 

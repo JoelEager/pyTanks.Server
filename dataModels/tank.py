@@ -59,7 +59,7 @@ class tank:
         :param doClean: True/False to indicate if the dict should be cleaned for sending to players
         :return: A dictionary of the tank's data
         """
-        myDict = copy.copy(self.__dict__)
+        myDict = copy.copy(vars(self))
 
         # The lastShotTime should never be in a gameState update
         del myDict["_tank__lastShotTime"]

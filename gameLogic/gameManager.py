@@ -21,6 +21,7 @@ def startGame():
     for count in range(0, randint(config.game.wall.wallCountBounds[0], config.game.wall.wallCountBounds[1])):
         isValidLocation = False
         aWall = None
+
         while not isValidLocation:
             aWall = dataModels.wall()
             isValidLocation = True
@@ -38,7 +39,8 @@ def startGame():
     halfWidth = (config.game.map.width / 2) - config.game.tank.width
     halfHeight = (config.game.map.height / 2) - config.game.tank.height
     tanksSpawned = list()
-    for clientID in list(serverData.clients.keys()):
+
+    for clientID in serverData.clients.keys():
         if serverData.clients[clientID].isPlayer():
             tank = serverData.clients[clientID].tank
             tank.spawn()
@@ -126,7 +128,7 @@ def gameTick(elapsedTime):
         del gameData.shells[index]
 
     # Fill the per-frame lists, execute any commands, and create tanks for new players
-    for clientID in list(serverData.clients.keys()):
+    for clientID in serverData.clients.keys():
         if serverData.clients[clientID].isPlayer():
             player = serverData.clients[clientID]
 
@@ -173,8 +175,10 @@ def gameTick(elapsedTime):
                     # Mark tank as dead, give the shooter a kill, and delete the shell
                     tank.alive = False
                     tank.moving = False
+
                     if shell.shooterId in serverData.clients:
                         serverData.clients[shell.shooterId].tank.kills += 1
+
                     del gameData.shells[index]
                     break
 
@@ -189,4 +193,5 @@ def gameTick(elapsedTime):
             # We have a winner!
             serverData.clients[players[0]].tank.wins += 1
             serverData.clients[players[0]].tank.alive = False
+
         gameData.ongoingGame = False

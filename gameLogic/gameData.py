@@ -59,8 +59,8 @@ def updateClients():
             tanks[clientID] = aTank
 
     # Send out clean data to players
-    tankIDs = list(tanks.keys())
-    for playerID in tankIDs:
+    #   Note: This loop iterates over a list of keys to prevent it from being messed up by adding and removing keys
+    for playerID in list(tanks.keys()):
         # Append the current tank's data and name to currentGameState
         myTank = tanks[playerID]
         myTank.name = config.server.tankNames[playerID]
@@ -81,10 +81,8 @@ def updateClients():
         tanks[playerID] = myTank
 
     # Send complete data to the viewers
-    for playerID in tankIDs:
+    for playerID in tanks.keys():
         del tanks[playerID].id
-
-    for playerID in tankIDs:
         tanks[playerID].name = config.server.tankNames[playerID]
     
     currentGameState.tanks = list(tanks.values())

@@ -12,13 +12,9 @@ Usage:
     changed directly or be overridden by appending one or more of these command line args:
         log=n - Overrides the default logging level. (See the usage section of the readme.)
         ip:port - Overrides the ip and port used to host the server.
-        
-    Args can also be placed in the PYTANKS_ARGS environment variable
-    (They will be applied before the command line args) 
 """
 
 import sys
-import os
 
 import config
 
@@ -41,8 +37,7 @@ def main():
     from serverLogic.wsServer import runServer
 
     # Parse and apply the args
-    args = os.environ.get("PYTANKS_ARGS", "").split(" ") + sys.argv
-    for arg in args:
+    for arg in sys.argv:
         if arg == sys.argv[0] or arg == "":
             continue
         elif arg.startswith("log="):

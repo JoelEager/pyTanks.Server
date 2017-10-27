@@ -41,7 +41,7 @@ def hasCollided(poly1, poly2, maxDist=None):
 
     def orthogonal(vector):
         """
-        :return: A vector which is at a right angle to the vector
+        :return: A new vector which is orthogonal to the given vector
         """
         return vector[1], - vector[0]
 
@@ -73,8 +73,12 @@ def hasCollided(poly1, poly2, maxDist=None):
 
         for axis in axes:
             overlapping = overlap(project(poly1, axis), project(poly2, axis))
+
             if not overlapping:
+                # The polys don't overlap on this axis so they can't be touching
                 return False
+
+        # The polys overlap on all axes so they must be touching
         return True
 
     # Do an optimization check using the maxDist

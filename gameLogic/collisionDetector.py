@@ -56,7 +56,7 @@ def hasCollided(poly1, poly2, maxDist=None):
         :return: A vector showing how much of the poly lies along the axis
         """
         dots = [dotProduct(point, axis) for point in poly]
-        return [min(dots), max(dots)]
+        return min(dots), max(dots)
 
     def overlap(projection1, projection2):
         """

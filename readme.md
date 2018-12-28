@@ -14,7 +14,7 @@ ongoing battle.
 
 ### Requirements
 - Python 3.5 or newer
-- [websockets 3.3](https://github.com/aaugustin/websockets) (`pip3 install websockets==3.3`)
+- [websockets 7.0](https://github.com/aaugustin/websockets) (`pip3 install websockets==7.0`)
 
 ## Server
 ### Usage

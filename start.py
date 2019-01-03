@@ -52,7 +52,7 @@ def main():
                 if num <= 1:
                     print("minPlayers must be greater than 1")
                     return
-                config.server.minPlayers = int(arg[-1:])
+                config.server.minPlayers = num
             except ValueError:
                 print("Invalid min player count")
                 return

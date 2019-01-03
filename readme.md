@@ -23,9 +23,10 @@ ongoing battle.
 The pyTanks player uses the settings found in `config.py` to control how the client works. Those values 
 can be changed directly or be overridden by appending one or more of these command line args:
 - `log=n` - Overrides the default logging level.
+- `minPlayers=n` - Overrides the minimum number of players required to start a game.
 - `ip:port` - Overrides the ip and port used to host the server.
 
-Where the log level is one of:
+The log level must be one of:
 - 0 for no logging
 - 1 for connect/disconnect and new game
 - 2 for server status and client errors
@@ -34,6 +35,8 @@ Where the log level is one of:
 - 5 for verbose websocket logs
 
 (All log events of a log level equal to or less than the set log level will be printed.)
+
+The minimum player count must be at least 2. Setting this override is useful during development when you want to test the performance of your tank against one other player. For example, setting minPlayers=2 will start a new round as soon as your tank dies.
 
 ### Project structure
 The pyTanks server is built around ansycio tasks with a main game logic task, an incoming messages task 

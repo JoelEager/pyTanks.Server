@@ -46,6 +46,16 @@ def main():
             except ValueError:
                 print("Invalid log level")
                 return
+        elif arg.startswith("minPlayers="):
+            try:
+                num = int(arg[-1:])
+                if num <= 1:
+                    print("minPlayers must be greater than 1")
+                    return
+                config.server.minPlayers = int(arg[-1:])
+            except ValueError:
+                print("Invalid min player count")
+                return
         elif ":" in arg:
             config.server.ipAndPort = arg
         else:

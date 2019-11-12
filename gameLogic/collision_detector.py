@@ -124,7 +124,6 @@ def perf_test(iterations):
     import datetime
 
     from dataModels import tank, shell
-    from serverLogic.logging import round
 
     def run_trials(max_dist=None):
         """
@@ -147,16 +146,8 @@ def perf_test(iterations):
 
         return (datetime.datetime.now() - start).total_seconds()
 
-    print("Benchmarking hasCollided() using a shell and tank...")
-    print("Using " + str(iterations) + " iterations\n")
-
-    time_with = run_trials(max_dist=MaxDistValues.tankShell)
-    time_without = run_trials()
-
-    print("Time with max_dist: " + str(round(time_with, 5)) + " secs")
-    print("Time without:      " + str(round(time_without, 5)) + " secs\n")
-
-    print("max_dist is " + str(round(time_without / time_with, 2)) + " times faster")
+    print("Running has_collided() through {} iterations...".format(iterations))
+    print("Completed in {} seconds".format(run_trials()))
 
 
 # If this file is run just launch perfTest()

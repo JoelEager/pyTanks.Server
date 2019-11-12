@@ -80,18 +80,15 @@ class tank:
         sin = math.sin(self.heading)
         cos = math.cos(self.heading)
 
-        def rotate_vector(x, y):
-            return x * cos - y * sin, x * sin + y * cos
+        def process_vector(x, y):
+            rotated = x * cos - y * sin, x * sin + y * cos
+            return rotated[0] + self.x, rotated[1] + self.y
 
         half_width = (config.game.tank.width / 2) + margin
         half_height = (config.game.tank.height / 2) + margin
-        poly = [rotate_vector(-half_width, -half_height),
-                rotate_vector(half_width, -half_height),
-                rotate_vector(half_width, half_height),
-                rotate_vector(-half_width, half_height)]
-
-        for count in range(0, len(poly)):
-            vector = poly[count]
-            poly[count] = (vector[0] + self.x, vector[1] + self.y)
+        poly = [process_vector(-half_width, -half_height),
+                process_vector(half_width, -half_height),
+                process_vector(half_width, half_height),
+                process_vector(-half_width, half_height)]
 
         return poly

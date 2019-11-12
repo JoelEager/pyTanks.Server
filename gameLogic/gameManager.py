@@ -5,7 +5,7 @@ Manages and updates the game state every frame and sets up new games
 from random import randint
 
 import config
-from . import collisionDetector, gameData
+from . import collision_detector, gameData
 import dataModels
 from serverLogic import serverData
 from serverLogic.logging import logPrint
@@ -28,7 +28,7 @@ def startGame():
 
             # Check for overlap with the other walls
             for otherWall in gameData.walls:
-                if collisionDetector.hasCollided(aWall.toPoly(), otherWall.toPoly(
+                if collision_detector.has_collided(aWall.toPoly(), otherWall.to_poly(
                         margin=config.game.wall.placementPadding)):
                     isValidLocation = False
                     break
@@ -53,14 +53,14 @@ def startGame():
 
                 # Check for collisions with the walls
                 for wall in gameData.walls:
-                    if collisionDetector.hasCollided(tank.toPoly(), wall.toPoly()):
+                    if collision_detector.has_collided(tank.to_poly(), wall.to_poly()):
                         isValidLocation = False
                         break
 
                 # Check for collisions with the other tanks
                 for otherTank in tanksSpawned:
-                    if collisionDetector.hasCollided(tank.toPoly(),
-                                                     otherTank.toPoly(margin=config.game.tank.spawnPadding)):
+                    if collision_detector.has_collided(tank.to_poly(),
+                                                       otherTank.to_poly(margin=config.game.tank.spawnPadding)):
                         isValidLocation = False
                         break
 
@@ -88,7 +88,7 @@ def gameTick(elapsedTime):
             tankToCheck.moving = False
 
         # Check for collisions with map bounds
-        for point in tankToCheck.toPoly():
+        for point in tankToCheck.to_poly():
             if (point[0] > config.game.map.width or point[0] < 0 or point[1] > config.game.map.height
                     or point[1] < 0):
                 didCollide()
@@ -96,14 +96,14 @@ def gameTick(elapsedTime):
 
         # Check for collisions with other tanks
         for otherTank in otherTanks:
-            if collisionDetector.hasCollided(tankToCheck.toPoly(), otherTank.toPoly(),
-                                             maxDist=collisionDetector.maxDistValues.tankTank):
+            if collision_detector.has_collided(tankToCheck.to_poly(), otherTank.to_poly(),
+                                               max_dist=collision_detector.MaxDistValues.tankTank):
                 didCollide()
                 return
 
         # Check for collisions with walls
         for wall in gameData.walls:
-            if collisionDetector.hasCollided(tankToCheck.toPoly(), wall.toPoly()):
+            if collision_detector.has_collided(tankToCheck.to_poly(), wall.to_poly()):
                 didCollide()
                 return
 
@@ -120,7 +120,7 @@ def gameTick(elapsedTime):
 
         # Discard any shells that hit a wall
         for wall in gameData.walls:
-            if collisionDetector.hasCollided(gameData.shells[index].toPoly(), wall.toPoly()):
+            if collision_detector.has_collided(gameData.shells[index].to_poly(), wall.to_poly()):
                 outOfBoundsShells.insert(0, index)
                 break
 
@@ -170,8 +170,8 @@ def gameTick(elapsedTime):
             shell = gameData.shells[index]
             # This if statement keeps a tank from being hit by it's own shell on the same frame as it shot that shell
             if shell.shooterId != clientID:
-                if collisionDetector.hasCollided(tank.toPoly(), shell.toPoly(),
-                                                 maxDist=collisionDetector.maxDistValues.tankShell):
+                if collision_detector.has_collided(tank.to_poly(), shell.to_poly(),
+                                                   max_dist=collision_detector.MaxDistValues.tankShell):
                     # Mark tank as dead, give the shooter a kill, and delete the shell
                     tank.alive = False
                     tank.moving = False

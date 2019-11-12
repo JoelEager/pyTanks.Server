@@ -72,7 +72,7 @@ class tank:
 
         return myDict
 
-    def toPoly(self, margin=0):
+    def to_poly(self, margin=0):
         """
         :param margin: If set the polygon will have a padding of margin pixels in every direction
         :return: The tank's polygon as a list of points as tuples
